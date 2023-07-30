@@ -92,18 +92,24 @@ df_selection = df.query(
 total_sales = round(df_selection["profit"].sum(), 2)
 average_earning = round(df_selection['profit'][df['profit_'] == 0].mean(), 1)
 average_loosing = round(df_selection['profit'][df['profit_'] == 1].mean(), 1)
-
+length_average_earning = len(df_selection['profit'][df['profit_'] == 0])
+length_average_loosing = len(df_selection['profit'][df['profit_'] == 1])
 
 left_column, middle_column, right_column = st.columns(3)
 with left_column:
     st.subheader("Total Earning:")
     st.subheader(f"US $ {total_sales:,}")
+
 with middle_column:
     st.subheader("Average Earning:")
     st.subheader(f"{average_earning}")
+    st.subheader("# Rigth choices:")
+    st.subheader(f"Total {length_average_earning}")
 with right_column:
     st.subheader("Average Loosing:")
     st.subheader(f"US $ {average_loosing }")
+    st.subheader("# Wrong choices:")
+    st.subheader(f"Total {length_average_loosing}")
 
 st.markdown("""---""")
 
