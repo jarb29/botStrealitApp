@@ -8,11 +8,8 @@ import plotly.express as px
 
 import matplotlib.pyplot as plt
 
-st.title(":bar_chart: Alex Bot Dashboard")
+st.title(":bar_chart: Alex Bot Dashboard.")
 st.markdown("##")
-
-
-
 
 
 db = boto3.resource('dynamodb', region_name = 'us-east-1' )
@@ -20,8 +17,6 @@ tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
 response  = table_name.scan()
 response = response['Items']
-
-
 
 
 @st.cache_data
@@ -64,7 +59,7 @@ def total(df):
 
 data_load_state = st.text('Loading data...')
 data = load_df(response)
-data_load_state.text("Done! Alex")
+data_load_state.text("Done! Alex.")
 
 df = total(data)
 

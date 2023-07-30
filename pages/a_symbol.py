@@ -61,7 +61,7 @@ def total(df):
 
 data_load_state = st.text('Loading data...')
 data = load_df(response)
-data_load_state.text("Done! Alex")
+data_load_state.text("Done! Alex.")
 
 
 df = total(data)
