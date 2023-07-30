@@ -81,7 +81,6 @@ sns.set_style("dark")
 
 
 colsInt = df['symbol'].unique()
-print(len(colsInt))
 total_n = len(colsInt)
 fig, axes = plt.subplots(round(len(colsInt)/3),3,figsize=(15, 60))
 for i in range(len(colsInt)-1):
