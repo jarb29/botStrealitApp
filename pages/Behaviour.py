@@ -7,7 +7,7 @@ import datetime
 
 import matplotlib.pyplot as plt
 
-st.title('Media Behaviour')
+st.title('Profit Behaviour per each time that the symbol is choose.')
 
 
 

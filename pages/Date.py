@@ -8,7 +8,7 @@ import plotly.express as px
 
 import matplotlib.pyplot as plt
 
-st.title(":bar_chart: Alex Bot Dashboard.")
+st.title("Close choices by Date")
 st.markdown("##")
 
 
@@ -55,13 +55,16 @@ def total(df):
     df['date'] = df['date'].dt.strftime('%Y-%m-%d')
     return df
 
-
+def close(df):
+    date_quant = df.groupby(['date', 'profit_'])['symbol'].agg('count').reset_index()
+    return date_quant
 
 data_load_state = st.text('Loading data...')
 data = load_df(response)
 data_load_state.text("Done! Alex.")
 
 df = total(data)
+datas = close(df)
 
 
 
@@ -79,77 +82,123 @@ profit = st.sidebar.multiselect(
     default=df["profit_"].unique(),
 )
 
+method = st.sidebar.multiselect(
+    "Select the Method:",
+    options=df["method"].unique(),
+    default=df["method"].unique(),
+)
 
 
-df_selection = df.query(
+
+
+df_selection = datas.query(
     "date == @date & profit_ ==@profit"
 )
 
+df_selection_method = df.query(
+    "date == @date & profit_ ==@profit & method ==@method"
+)
 # ---- MAINPAGE ----
+symbol_df = df.query(
+    "date == @date & profit_ ==@profit"
+)
 
-
-# TOP KPI's
-total_sales = round(df_selection["profit"].sum(), 2)
-average_earning = round(df_selection['profit'][df['profit_'] == 0].mean(), 1)
-average_loosing = round(df_selection['profit'][df['profit_'] == 1].mean(), 1)
-length_average_earning = len(df_selection['profit'][df['profit_'] == 0])
-length_average_loosing = len(df_selection['profit'][df['profit_'] == 1])
-
-left_column, middle_column, right_column = st.columns(3)
-with left_column:
-    st.subheader("Total Earning:")
-    st.subheader(f"US $ {total_sales:,}")
-
-with middle_column:
-    st.subheader("Average Earning:")
-    st.subheader(f"{average_earning}")
-    st.subheader("# Rigth choices:")
-    st.subheader(f"Total {length_average_earning}")
-with right_column:
-    st.subheader("Average Loosing:")
-    st.subheader(f"US $ {average_loosing }")
-    st.subheader("# Wrong choices:")
-    st.subheader(f"Total {length_average_loosing}")
 
 st.markdown("""---""")
 
+
 # SALES BY PRODUCT LINE [BAR CHART]
+df_selection['Profit'] = df_selection['profit_'].apply(lambda x: 'Profit' if x == 0 else 'Loosing')
+df_selection['Quantity'] = df_selection['symbol']
 sales_by_product_line = (
-    df_selection.groupby(by=["date"]).sum()[["profit"]].sort_values(by="date")
+    df_selection
 )
+
+df_selection_method['method'] = df_selection_method['method'].apply(lambda x: 'Forecast' if x == 'deep_learning_forecast' else 'Binance')
+
+profit_df_selection_method = (
+    df_selection_method.groupby(['date', 'method'])['profit'].agg('sum').reset_index()
+)
+profit_df_selection_method_quantity = df_selection_method.groupby(['date', 'method'])['symbol'].agg('count').reset_index()
+profit_df_selection_method_quantity['Quantity'] = profit_df_selection_method_quantity['symbol']
+profit_df_selection_method_quantity = (
+    profit_df_selection_method_quantity
+)
+
 fig_product_sales = px.bar(
     sales_by_product_line,
-    x="profit",
-    y=sales_by_product_line.index,
+    x='Quantity',
+    color="Profit",
+    y=sales_by_product_line.date,
     orientation="h",
-    title="<b>Profit by date</b>",
-    color_discrete_sequence=["#0063B8"] * len(sales_by_product_line),
+    title="<b>Quantity by date</b>",
+    # color_discrete_sequence=["#0083B8"] * len(sales_by_product_line),
     template="plotly_dark",
 )
 fig_product_sales.update_layout(
     plot_bgcolor="rgba(0,0,0,0)",
-    xaxis=(dict(showgrid=False))
+    xaxis=(dict(showgrid=True)),
+    yaxis=(dict(showgrid=True))
 )
 
 # SALES BY HOUR [BAR CHART]
-sales_by_hour = df_selection.groupby(by=["symbol"]).sum()[["profit"]]
 fig_hourly_sales = px.bar(
-    sales_by_hour,
-    y=sales_by_hour.index,
+    profit_df_selection_method,
+    y=profit_df_selection_method.date,
     x="profit",
+    color = 'method',
     orientation="h",
-    title="<b>Profit by Symbol</b>",
-    color_discrete_sequence=["#CC6600"] * len(sales_by_hour),
+    title="<b>Profit by Method</b>",
+    # color_discrete_sequence=["#0083B8"] * len(profit_df_selection_method),
     template="plotly_dark",
 )
 fig_hourly_sales.update_layout(
     xaxis=dict(tickmode="linear"),
     plot_bgcolor="rgba(0,0,0,0)",
-    yaxis=(dict(showgrid=False)),
+    yaxis=(dict(showgrid=True))
 )
+
+fig_hourly_sales_quantity = px.bar(
+    profit_df_selection_method_quantity,
+    y=profit_df_selection_method_quantity.date,
+    x="Quantity",
+    color = 'method',
+    orientation="h",
+    title="<b>Quantity by Method</b>",
+    # color_discrete_sequence=["#0083B8"] * len(profit_df_selection_method),
+    template="plotly_dark",
+)
+fig_hourly_sales_quantity.update_layout(
+    xaxis=dict(tickmode="linear"),
+    # plot_bgcolor="rgba(0,0,0,0)",
+    yaxis=(dict(showgrid=True))
+)
+symbol_df =  ( symbol_df.groupby(['symbol'])['profit'].agg('sum').reset_index())
+
+
+symbol = px.bar(
+    symbol_df,
+    y='symbol',
+    x="profit",
+    # color = 'method',
+    orientation="h",
+    title="<b>Profit by Symbol</b>",
+    # color_discrete_sequence=["#0083B8"] * len(profit_df_selection_method),
+    template="plotly_dark",
+)
+symbol.update_layout(
+    xaxis=dict(tickmode="linear"),
+    # plot_bgcolor="rgba(0,0,0,0)",
+    yaxis=(dict(showgrid=True))
+)
+
+
+
+
 st.plotly_chart(fig_product_sales, use_container_width=True)
 st.plotly_chart(fig_hourly_sales, use_container_width=True)
-
+st.plotly_chart(fig_hourly_sales_quantity, use_container_width=True)
+st.plotly_chart(symbol, use_container_width=True)
 # left_column, right_column = st.columns(2)
 # left_column.plotly_chart(fig_hourly_sales, use_container_width=True)
 # right_column.plotly_chart(fig_product_sales, use_container_width=True)
