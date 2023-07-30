@@ -2,4 +2,6 @@
 .vscode/
 /.venv/
 /.vscode/
+.venv
+.vscode
 # all othe are ignore
