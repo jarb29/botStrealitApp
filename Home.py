@@ -96,30 +96,69 @@ df_selection = df.query(
 # ---- MAINPAGE ----
 
 
-# TOP KPI's
-total_sales = round(df_selection["profit"].sum(), 2)
-average_earning = round(df_selection['profit'][df['profit_'] == 0].mean(), 1)
-average_loosing = round(df_selection['profit'][df['profit_'] == 1].mean(), 1)
-length_average_earning = len(df_selection['profit'][df['profit_'] == 0])
-length_average_loosing = len(df_selection['profit'][df['profit_'] == 1])
+# TOP KPI's\
+total_sales = round(df["profit"].sum(), 2)
+date_sales = round(df_selection["profit"].sum(), 2)
+average_earning = round(df['profit'][df['profit_'] == 0].mean(), 1)
+average_loosing = round(df['profit'][df['profit_'] == 1].mean(), 1)
+date_average_earning = round(df_selection['profit'][df['profit_'] == 0].mean(), 1)
+date_average_loosing = round(df_selection['profit'][df['profit_'] == 1].mean(), 1)
+length_average_earning = len(df['profit'][df['profit_'] == 0])
+length_average_loosing = len(df['profit'][df['profit_'] == 1])
+date_length_average_earning = len(df_selection['profit'][df['profit_'] == 0])
+date_length_average_loosing = len(df_selection['profit'][df['profit_'] == 1])
+total_symbol = len(df['symbol'].unique())
+date_symbol = len(df_selection['symbol'].unique())
 
-left_column, middle_column, right_column = st.columns(3)
+left_column, middle_column = st.columns(2)
 with left_column:
+    st.text('___'*10)
     st.subheader("Total Earning:")
     st.subheader(f"US $ {total_sales:,}")
+    st.text('___'*10)
+    st.subheader("Total Average Earning:")
+    st.subheader(f"{average_earning}")
+    st.text('___'*10)
+    st.subheader("Total Rigth choices:")
+    st.subheader(f"Total: {length_average_earning}")
+
+    st.text('___'*10)
+    st.subheader("Total Wrong choices:")
+    st.subheader(f"Total: {length_average_loosing}")
+    st.text('___'*10)
+    st.subheader("Total Average Loosing:")
+    st.subheader(f"US $ {average_loosing }")
+    st.text('___'*10)
+    st.subheader("Total Symbols Trade:")
+    st.subheader(f"Total: {total_symbol}")
+    
+    
+
+
 
 with middle_column:
-    st.subheader("Average Earning:")
-    st.subheader(f"{average_earning}")
-    st.subheader("# Rigth choices:")
-    st.subheader(f"Total {length_average_earning}")
-with right_column:
-    st.subheader("Average Loosing:")
-    st.subheader(f"US $ {average_loosing }")
-    st.subheader("# Wrong choices:")
-    st.subheader(f"Total {length_average_loosing}")
+    st.text('___'*10)
+    st.subheader("Date Earning:")
+    st.subheader(f"US $ {date_sales:,}")
+    st.text('___'*10)
+    st.subheader("Date average Earning:")
+    st.subheader(f"{date_average_earning}")
+    st.text('___'*10)
+    st.subheader("# Date Rigth choices:")
+    st.subheader(f"Total: {date_length_average_earning}")
+
+    st.text('___'*10)
+    st.subheader("# Date Wrong choices:")
+    st.subheader(f"Total: {date_length_average_loosing}")
+    st.text('___'*10)
+    st.subheader("Date Average Loosing:")
+    st.subheader(f"US $ {date_average_loosing }")
+    st.text('___'*10)
+    st.subheader("Date Symbols Trade:")
+    st.subheader(f"Total: {date_symbol}")
 
 st.markdown("""---""")
+
 
 # SALES BY PRODUCT LINE [BAR CHART]
 sales_by_product_line = (

@@ -8,7 +8,7 @@ import plotly.express as px
 
 import matplotlib.pyplot as plt
 
-st.title("From Cripto symbols to Hours")
+st.title("Best and Worst Criptos")
 st.markdown("##")
 
 
@@ -57,9 +57,6 @@ def total(df):
     df['hour'] = df['date'].dt.strftime('%H')
     return df
 
-def close(df):
-    date_quant = df.groupby(['symbol', 'method', 'profit_', 'Day_of_week', 'hour'])['profit'].agg('count').reset_index()
-    return date_quant
 
 def Profit(df):
     date_quant = df.groupby(['symbol'])['profit'].agg('sum').reset_index()
@@ -75,57 +72,53 @@ data_load_state.text("Done! Alex.")
 
 df = total(data)
 
-datas = close(df)
+
 profit = Profit(df)
 # print(profit, "the profit")
+st.markdown("""---""")
+left_column, middle_column = st.columns(2)
+positive = profit[profit['profit'] > 0]
+negative = profit[profit['profit'] < 0]
+
+earning = round(positive['profit'].sum(), 2)
+loosing = round(negative['profit'].sum(), 2)
+
+with left_column:
+    # st.text('___'*10)
+    st.subheader("Total Earning:")
+    st.subheader(f"Total: {earning}")
+    
+    
+with middle_column:
+    # st.text('___'*10)
+    st.subheader("Total Loosing:")
+    st.subheader(f"{loosing}")
+
+    
+    
+    
+st.markdown("""---""")
 
 
+# SALES BY HOUR [BAR CHART]
+
+best20 = px.pie(positive, 
+                          values='profit',
+                          names='symbol', 
+                          title='Profitable symbols')
 
 
-# ---- SIDEBAR ----
-st.sidebar.header("Please Filter Here:")
-symbol = st.sidebar.multiselect(
-    "Select the Symbol:",
-    options=df["symbol"].unique(),
-    default=df["symbol"][0:20]
-)
+negative['profit'] = negative['profit']*-1
+worst20 = px.pie(negative, 
+                          values='profit',
+                          names='symbol', 
+                          title='Loosing Symbols')
 
 
+st.plotly_chart(best20, use_container_width=True)
+st.markdown("""---""")
+st.plotly_chart(worst20, use_container_width=True)
 
-
-
-
-df_selection = datas.query(
-    "symbol == @symbol"
-)
-
-
-
-
-# st.markdown("""---""")
-
-
-# # SALES BY PRODUCT LINE [BAR CHART]
-df_selection['Profit'] = df_selection['profit_'].apply(lambda x: 'Profit' if x == 0 else 'Loosing')
-
-sales_by_product_line = (
-    df_selection
-)
-
-
-
-fig = px.parallel_categories(
-    df_selection , 
-    dimensions=['symbol', 'method', 'Profit', 'Day_of_week', 'hour'],
-    color="profit_", 
-    color_continuous_scale=px.colors.sequential.Inferno,
-    template="plotly_dark",
-    labels={'symbol':'Cripto', 'method':'Chosen Method', 'hour':'Hour'})
-
-
-
-
-st.plotly_chart(fig, use_container_width=True)
 
 
 # ---- HIDE STREAMLIT STYLE ----
