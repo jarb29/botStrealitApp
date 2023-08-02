@@ -5,6 +5,7 @@ import boto3
 import json
 import datetime
 import plotly.express as px
+import datetime
 
 import matplotlib.pyplot as plt
 
@@ -67,10 +68,17 @@ df = total(data)
 
 # ---- SIDEBAR ----
 st.sidebar.header("Please Filter Here:")
+
+
+
+sortedDates = sorted([datetime.datetime.strptime(item, '%Y-%m-%d') for item in df["date"].unique()])
+sortedDates = [item.strftime('%Y-%m-%d') for item in sortedDates]
+
+
 date = st.sidebar.multiselect(
     "Select the Date:",
     options=df["date"].unique(),
-    default=df["date"].unique()
+    default=sortedDates[-6:]
 )
 
 profit = st.sidebar.multiselect(
