@@ -123,10 +123,10 @@ fig = px.parallel_categories(
     labels={'symbol':'Cripto', 'method':'Chosen Method', 'hour':'Hour'})
 
 
-
+st.markdown("""---""")
 
 st.plotly_chart(fig, use_container_width=True)
-
+st.markdown("""---""")
 
 # ---- HIDE STREAMLIT STYLE ----
 hide_st_style = """

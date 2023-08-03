@@ -68,7 +68,7 @@ if st.checkbox('Show raw data'):
     st.write(data)
 
 df = total(data)
-
+st.markdown("""---""")
  
 # Create a Seaborn correlation plot
 

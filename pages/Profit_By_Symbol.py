@@ -66,7 +66,7 @@ data_load_state.text("Done! Alex.")
 
 df = total(data)
 
- 
+st.markdown("""---""")
 # Create a Seaborn correlation plot
 
 sns.set_style("dark")

@@ -16,7 +16,7 @@ tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
 response  = table_name.scan()
 response = response['Items']
-
+st.markdown("""---""")
 
 
 @st.cache_data

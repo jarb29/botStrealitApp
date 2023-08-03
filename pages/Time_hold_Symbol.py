@@ -69,8 +69,9 @@ df = total(data)
  
 
 sns.set_style("dark")
-
+st.markdown("""---""")
 chart = sns.catplot(data=df, x="time_hold", y="symbol", kind="violin", color=".9", inner=None, height=8, aspect=1)
+
 chart = sns.swarmplot(data=df, x="time_hold", y="symbol", orient="h", size=2)
 
 

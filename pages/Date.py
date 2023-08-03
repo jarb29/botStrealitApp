@@ -198,8 +198,11 @@ symbol.update_layout(
 
 
 st.plotly_chart(fig_product_sales, use_container_width=True)
+st.markdown("""---""")
 st.plotly_chart(fig_hourly_sales, use_container_width=True)
+st.markdown("""---""")
 st.plotly_chart(fig_hourly_sales_quantity, use_container_width=True)
+st.markdown("""---""")
 st.plotly_chart(symbol, use_container_width=True)
 # left_column, right_column = st.columns(2)
 # left_column.plotly_chart(fig_hourly_sales, use_container_width=True)

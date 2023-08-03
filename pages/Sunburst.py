@@ -77,8 +77,9 @@ fig = px.sunburst(df_sunburst, path=['method', 'profit_', 'symbol', 'profit'], c
                   color_continuous_midpoint=np.average(df['profit'], weights=df['profit_'])
                  
                  )
-
+st.markdown("""---""")
 st.plotly_chart(fig, use_container_width=True)
+st.markdown("""---""")
 # ---- HIDE STREAMLIT STYLE ----
 hide_st_style = """
             <style>

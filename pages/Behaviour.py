@@ -20,7 +20,7 @@ response  = table_name.scan()
 response = response['Items']
 
 
-
+st.markdown("""---""")
 @st.cache_data
 def load_data(nrows):
     data = pd.read_csv(DATA_URL, nrows=nrows)

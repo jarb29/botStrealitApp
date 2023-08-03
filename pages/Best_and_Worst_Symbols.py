@@ -18,7 +18,6 @@ table_name = db.Table(name='app_bi_sell')
 response  = table_name.scan()
 response = response['Items']
 
-
 @st.cache_data
 def load_df(response):
     data = []
