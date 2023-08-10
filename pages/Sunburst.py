@@ -65,9 +65,9 @@ data_load_state.text("Done! Alex.")
 df = total(data)
 
 
-df_sunburst = df.groupby(['method', 'symbol', 'profit_'])['profit'].agg('sum').reset_index()
+df_sunburst = df.groupby(['method', 'symbol'])['profit'].agg('sum').reset_index()
 df_sunburst['method'] = df_sunburst['method'].apply(lambda x: 'Forecast' if x == 'deep_learning_forecast' else 'Binance')
-df_sunburst['profit_'] = df_sunburst['profit_'].apply(lambda x: 'Profit' if x == 0 else 'Loosing')
+df_sunburst['profit_'] = df_sunburst['profit'].apply(lambda x: 'Profit' if x > 0 else 'Loosing')
 df_sunburst['profit'] = df_sunburst['profit'].apply(lambda x: round(x, 2))
 
 fig = px.sunburst(df_sunburst, path=['method', 'profit_', 'symbol', 'profit'], color = 'profit',
