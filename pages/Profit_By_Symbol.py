@@ -7,7 +7,7 @@ import datetime
 
 import matplotlib.pyplot as plt
 
-st.title('Profit VS Symbols')
+st.title('Profit Vs Symbols')
 
 
 
