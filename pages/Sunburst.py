@@ -70,6 +70,15 @@ df_sunburst['method'] = df_sunburst['method'].apply(lambda x: 'Forecast' if x ==
 df_sunburst['profit_'] = df_sunburst['profit'].apply(lambda x: 'Profit' if x > 0 else 'Loosing')
 df_sunburst['profit'] = df_sunburst['profit'].apply(lambda x: round(x, 2))
 
+df_sunburstII = df.groupby(['method', 'profit_'])['profit'].agg('sum').reset_index()
+df_sunburstII['profit_'] = df_sunburstII['profit'].apply(lambda x: 'Profit' if x > 0 else 'Loosing')
+df_sunburstII['total_profit'] = df_sunburstII['profit'].apply(lambda x: round(x, 2))
+df_sunburstII = df_sunburstII.drop(['profit'], axis=1)
+df_sunburstII['method'] = df_sunburstII['method'].apply(lambda x: 'Forecast' if x == 'deep_learning_forecast' else 'Binance')
+df_sunburst = df_sunburst.merge(df_sunburstII, left_on=['method', 'profit_'], right_on=['method', 'profit_'])
+
+df_sunburst['profit_'] = df_sunburst.apply(lambda x: f'{x.profit_}: {x.total_profit}$', axis=1)
+
 fig = px.sunburst(df_sunburst, path=['method', 'profit_', 'symbol', 'profit'], color = 'profit',
                   hover_data=['profit'],
                   color_continuous_scale='RdBu',
