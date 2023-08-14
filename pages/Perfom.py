@@ -73,7 +73,8 @@ df = total(data)
 
 
 profit = Profit(df)
-# print(profit, "the profit")
+profit['size'] = profit['profit'].apply(lambda x: round(x,2) if x > 0 else 0.01)
+print(profit, "the profit")
 st.markdown("""---""")
 left_column, middle_column = st.columns(2)
 positive = profit[profit['profit'] >= 0]
@@ -101,22 +102,33 @@ st.markdown("""---""")
 
 # SALES BY HOUR [BAR CHART]
 
-best20 = px.pie(positive, 
-                          values='profit',
-                          names='symbol', 
-                          title='Profitable symbols')
+
+best20 = px.scatter(profit, 
+                    x="symbol", 
+                    y="profit", 
+                    color="symbol",
+                    template="plotly_dark",
+                    title="<b>Profit by Symbol</b>",
+                    hover_name="symbol",
+                    size = 'size',
+                    orientation="h",
+                    size_max=60
+                    )
 
 
-negative['profit'] = negative['profit']*-1
-worst20 = px.pie(negative, 
-                          values='profit',
-                          names='symbol', 
-                          title='Loosing Symbols')
+best20.update_layout(
+    plot_bgcolor="rgba(0,0,0,0)",
+    xaxis=(dict(showgrid=True)),
+    yaxis=(dict(showgrid=True))
+)
+
+
+
 
 
 st.plotly_chart(best20, use_container_width=True)
 st.markdown("""---""")
-st.plotly_chart(worst20, use_container_width=True)
+# st.plotly_chart(worst20, use_container_width=True)
 
 
 
