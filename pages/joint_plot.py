@@ -4,7 +4,7 @@ import seaborn as sns
 import boto3
 import json
 import datetime
-
+import plotly.express as px
 st.title('Joint Plot')
 
 
@@ -53,7 +53,17 @@ def load_df(response):
 def total(df):
     df['date'] = pd.to_datetime(df['date_sold'])
     df['date'] = df['date'].dt.strftime('%Y-%m-%d')
+    df = df.groupby(['symbol', 'date'])['profit'].agg('sum').reset_index()
     return df
+
+# def total(df):
+#     df['date'] = pd.to_datetime(df['date_sold'])
+#     df['dates'] = df['date'].dt.strftime('%Y-%m-%d')
+#     df['Day_of_week'] = df['date'].dt.day_name()
+#     df['hour'] = df['date'].dt.strftime('%H')
+#     return df
+
+
 
 
 
@@ -64,12 +74,137 @@ data_load_state.text("Done! Alex")
 
 df = total(data)
 
- 
-# Create a Seaborn correlation plot
+def sum_profit(symbol_list, df):
+    final = pd.DataFrame()
+    for each in symbol_list:
+        new_df = pd.DataFrame()
+        new_df = df[df['symbol'] == each].reset_index()
+        for ind in range(len(new_df)):
+            if ind == 0:
+                new_df.loc[ind, 'sum_profit']  = new_df.loc[ind, "profit"]
+            else:
+                 new_df.loc[ind, 'sum_profit'] = round(new_df.loc[ind, "profit"] + new_df.loc[ind-1, 'sum_profit'], 2)
+                 
+        final = pd.concat([new_df, final], ignore_index=True)
+        new_df = []
+    return final
 
-sns.set_style("dark")
 
-g = sns.jointplot(data=df, x="time_hold", y="profit", hue="profit_")
- 
-# Display the plot in Streamlit
-st.pyplot(g.fig)
+def dates_profit(symbol_list, df):
+    sortedDates = sorted([datetime.datetime.strptime(item, '%Y-%m-%d') for item in df["date"].unique()])
+    sortedDates = [item.strftime('%Y-%m-%d') for item in sortedDates]
+    sortedDates  =  list(pd.date_range(sortedDates[0],sortedDates[-1],freq='d').strftime("%Y-%m-%d"))
+    final = pd.DataFrame()
+    for each in symbol_list:
+        new_df = pd.DataFrame()
+        new_dfII = pd.DataFrame()
+        new_df = df[df['symbol'] == each].reset_index()
+        df2=new_df.loc[new_df['date'] == new_df['date'].values.tolist()[0]]
+        df2['date'] = sortedDates[0]
+        new_dfII = pd.concat([new_dfII, df2], ignore_index = True)
+                    
+                    
+
+        if len(new_df)> 1:
+            for ind in range(len(new_df)):
+                if ind + 1 < len(new_df):
+                    date_ini_idx = sortedDates.index(new_df.loc[ind, 'date'])
+                    date_twi_idx = sortedDates.index(new_df.loc[ind+1, 'date'])
+                    if (date_twi_idx - date_ini_idx) >= 1:
+                        date_num  = date_twi_idx - date_ini_idx
+                
+                        for each in range(date_num):   
+                            df2=new_df.loc[new_df['date'] == new_df.loc[ind, 'date']]
+                            df2['date'] = sortedDates[int(date_ini_idx+each)]
+                            new_dfII = pd.concat([new_dfII, df2], ignore_index = True)
+                    else:
+                        df2=new_df.loc[new_df['date'] == new_df.loc[ind, 'date']]
+                        new_dfII = pd.concat([new_dfII, df2], ignore_index = True)
+
+                
+                else:
+                    new_df  = new_df.sort_values("date")
+                    date_ini_idx  = sortedDates.index(new_df['date'].values.tolist()[-1])
+                    date_twi_idx = len(sortedDates)
+                    if (date_twi_idx - date_ini_idx) >= 1:
+                        date_num  = date_twi_idx - date_ini_idx
+                        for each in range(date_num-1):
+                            df2=new_df.loc[new_df['date'] == new_df['date'].values.tolist()[-1]]
+                            df2['date'] = sortedDates[int(date_ini_idx+each)]
+                            new_dfII = pd.concat([new_dfII, df2], ignore_index = True)
+                    final = pd.concat([new_dfII, final], ignore_index=True)
+        else:
+            date_ini_idx  = sortedDates.index(new_df['date'].values.tolist()[-1])
+            date_twi_idx = len(sortedDates)
+            if (date_twi_idx - date_ini_idx) >= 1:
+                date_num  = date_twi_idx - date_ini_idx
+                for each in range(date_num):
+                    df2=new_df.loc[new_df['date'] == new_df['date'].values.tolist()[-1]]
+                    df2['date'] = sortedDates[int(date_ini_idx+each)]
+                    new_dfII = pd.concat([new_dfII, df2], ignore_index = True)   
+
+        final = pd.concat([new_dfII, final], ignore_index=True)
+       
+    return final
+
+symbol_list = df['symbol'].unique()
+
+    
+df = sum_profit(symbol_list, df)
+
+df['sum_profit'] = df['sum_profit'].apply(lambda x: round(x,2) if x > 0 else 0.01)
+df['category'] = df['symbol'].apply(lambda x: 'BUSD' if x[-4:] == 'BUSD' else 'USDT')
+df = dates_profit(symbol_list, df)
+
+
+sortedDates = sorted([datetime.datetime.strptime(item, '%Y-%m-%d') for item in df["date"].unique()])
+sortedDates = [item.strftime('%Y-%m-%d') for item in sortedDates]
+
+dates =  list(pd.date_range(sortedDates[0],sortedDates[-1],freq='d').strftime("%Y-%m-%d"))
+
+
+
+df = df.drop(['level_0',  'index'], axis=1)
+
+df = df.drop_duplicates()
+df  = df.sort_values("date").reset_index()
+df = df.drop(['index'], axis=1).copy()
+print(df)
+max_profit = max(df['sum_profit'].values.tolist()) + 0.5
+
+best20 = px.scatter(df, x="symbol", y="sum_profit", 
+                    animation_frame="date", animation_group="symbol",
+                    size="sum_profit", color="category", 
+                    hover_name="symbol", facet_col="category",
+                    size_max=15, range_y=[0,max_profit],
+                    template="plotly_dark")
+
+best20.update_layout(
+    xaxis=dict(tickmode="linear"),
+    plot_bgcolor="rgba(154, 167, 199, 0.09)",
+    yaxis=(dict(showgrid=True))
+)
+
+best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+best20.update_yaxes(showticklabels=True)
+
+
+
+
+
+
+st.plotly_chart(best20, use_container_width=True)
+st.markdown("""---""")
+# st.plotly_chart(worst20, use_container_width=True)
+
+
+
+# ---- HIDE STREAMLIT STYLE ----
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)

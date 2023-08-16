@@ -4,7 +4,7 @@ import seaborn as sns
 import boto3
 import json
 import datetime
-
+import plotly.express as px
 import matplotlib.pyplot as plt
 
 st.title('Comparative Plot')
@@ -69,7 +69,7 @@ if st.checkbox('Show raw data'):
 
 df = total(data)
 st.markdown("""---""")
- 
+print(df)
 # Create a Seaborn correlation plot
 
 sns.set_style("dark")
@@ -79,3 +79,34 @@ g.map_lower(sns.kdeplot, levels=4, color=".2")
  
 # Display the plot in Streamlit
 st.pyplot(g.fig)
+st.markdown("""---""")
+
+
+fig_product_sales = px.scatter_matrix(
+    df,
+    dimensions= ['time_hold', 'profit', 'bougth', 'sold'],
+    color="profit_",
+    color_continuous_scale=px.colors.sequential.Cividis_r,
+    title="<b>Comparative</b>",
+    template="plotly_dark",
+)
+
+fig_product_sales.update_layout(
+    xaxis=dict(tickmode="linear"),
+    plot_bgcolor="rgba(154, 167, 199, 0.09)",
+    yaxis=(dict(showgrid=True))
+)
+
+st.plotly_chart(fig_product_sales, use_container_width=True)
+
+
+
+# ---- HIDE STREAMLIT STYLE ----
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)

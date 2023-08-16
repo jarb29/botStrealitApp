@@ -1,16 +1,15 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sns
+import numpy as np
 import boto3
 import json
 import datetime
+import plotly.express as px
 
 import matplotlib.pyplot as plt
 
-st.title('Profit Vs Symbols')
-
-
-
+st.title("Best and Worst Criptos")
+st.markdown("##")
 
 
 db = boto3.resource('dynamodb', region_name = 'us-east-1' )
@@ -18,8 +17,6 @@ tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
 response  = table_name.scan()
 response = response['Items']
-
-
 
 @st.cache_data
 def load_df(response):
@@ -52,33 +49,93 @@ def load_df(response):
     return df
 
 
+# def total(df):
+#     df['date'] = pd.to_datetime(df['date_sold'])
+#     df['dates'] = df['date'].dt.strftime('%Y-%m-%d')
+#     df['Day_of_week'] = df['date'].dt.day_name()
+#     df['hour'] = df['date'].dt.strftime('%H')
+#     return df
+
+def Profit(df):
+    date_quant = df.groupby(['symbol'])['profit'].agg('sum').reset_index()
+    # date_quant = date_quant.sort_values("profit", ascending=False).reset_index(drop=True)
+    return date_quant
+    
 def total(df):
     df['date'] = pd.to_datetime(df['date_sold'])
     df['date'] = df['date'].dt.strftime('%Y-%m-%d')
     return df
 
 
-
-data_load_state = st.text('Loading data...')
 data = load_df(response)
-data_load_state.text("Done! Alex.")
-
-
 df = total(data)
+profit = Profit(df)
 
+# print(df, "the profit")
 st.markdown("""---""")
-# Create a Seaborn correlation plot
+left_column, middle_column = st.columns(2)
+positive = profit[profit['profit'] >= 0]
+negative = profit[profit['profit'] < 0]
 
-sns.set_style("dark")
-colsInt = df['symbol'].unique()
+earning = round(positive['profit'].sum(), 2)
+loosing = round(negative['profit'].sum(), 2)
 
-fig, axes = plt.subplots(round(len(colsInt)/3),3,figsize=(10, 40))
+with left_column:
+    # st.text('___'*10)
+    st.subheader("Total Earning:")
+    st.subheader(f"Total: {earning}")
+    
+    
+with middle_column:
+    # st.text('___'*10)
+    st.subheader("Total Loosing:")
+    st.subheader(f"{loosing}")
 
-for i in range(len(colsInt)-1):
-    plt.subplot(round(len(colsInt)/3),3,i+1)
-    new_df = df[df['symbol'] == colsInt[i]]
-    chart = sns.barplot(new_df, hue='profit_',x='symbol', y="profit", errorbar=('ci', 0));
-    plt.gca().set_title(colsInt[i])
-fig.tight_layout()
-# Display the plot in Streamlit
-st.pyplot(chart.get_figure())
+    
+    
+    
+st.markdown("""---""")
+
+
+# SALES BY HOUR [BAR CHART]
+
+
+best20 = px.bar(df, x="profit_", y="profit", color= 'profit_',
+                facet_col="symbol", facet_col_wrap=3,
+                facet_row_spacing=0.02, 
+                facet_col_spacing=0.02,
+                height=120*round(len(df['symbol'].unique())/3), 
+                width=800,
+                color_continuous_scale=px.colors.sequential.Cividis_r,
+                )
+
+
+best20.update_layout(
+    xaxis=dict(tickmode="linear"),
+    plot_bgcolor="rgba(154, 167, 199, 0.09)",
+    yaxis=(dict(showgrid=True))
+)
+
+best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+best20.update_yaxes(showticklabels=True)
+
+
+
+
+
+
+st.plotly_chart(best20, use_container_width=True)
+st.markdown("""---""")
+# st.plotly_chart(worst20, use_container_width=True)
+
+
+
+# ---- HIDE STREAMLIT STYLE ----
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
