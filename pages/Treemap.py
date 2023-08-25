@@ -1,16 +1,15 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sns
+import numpy as np
 import boto3
 import json
 import datetime
 import plotly.express as px
+
 import matplotlib.pyplot as plt
 
-st.title('Comparative Plot')
-
-
-
+st.title("Best and Worst Criptos")
+st.markdown("##")
 
 
 db = boto3.resource('dynamodb', region_name = 'us-east-1' )
@@ -18,8 +17,6 @@ tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
 response  = table_name.scan()
 response = response['Items']
-
-
 
 @st.cache_data
 def load_df(response):
@@ -49,54 +46,55 @@ def load_df(response):
     df['time_hold'] = pd.to_datetime(df['date_sold']) - pd.to_datetime(df['date_bougth'])
     df['time_hold'] = round(df['time_hold'].dt.seconds / 60, 2)
     df['profit_'] = df['profit'].apply(lambda x: 0 if x > 0 else 1)
+    
     return df
 
 
-def total(df):
-    df['date'] = pd.to_datetime(df['date_sold'])
-    df['date'] = df['date'].dt.strftime('%Y-%m-%d')
-    return df
-
-
+# def total(df):
+#     df['date'] = pd.to_datetime(df['date_sold'])
+#     df['dates'] = df['date'].dt.strftime('%Y-%m-%d')
+#     df['Day_of_week'] = df['date'].dt.day_name()
+#     df['hour'] = df['date'].dt.strftime('%H')
+#     return df
 
 data_load_state = st.text('Loading data...')
-data = load_df(response)
-data_load_state.text("Done! (using st.cache_data)")
+profit = load_df(response)
+data_load_state.text("Done! Alex.")
 
-# if st.checkbox('Show raw data'):
-#     st.subheader('Raw data')
-#     st.write(data)
+# profit = total(data)
 
-df = total(data)
+profit['sum_profit'] = profit['profit'].apply(lambda x: round(x,2) if x >= 0 else 0.001)
+profit['category'] = profit['symbol'].apply(lambda x: 'BUSD' if x[-4:] == 'BUSD' else 'USDT')
+profit['method'] = profit['method'].apply(lambda x: 'Series' if x == 'deep_learning_forecast' else 'RNN')
+
+# print(profit[profit['symbol'] == 'ALGOBUSD'])
+# money = sum(profit[profit['symbol'] == 'ALGOBUSD']['sum_profit'])
+# print(money)
+
+best20 = px.treemap(profit, path=['category', 'method', 'symbol'],
+                    values='sum_profit', color='sum_profit', 
+                    hover_data=['sum_profit'],
+                    color_continuous_scale='RdBu',
+                  
+                    )
+
+best20.update_layout(
+    xaxis=dict(tickmode="linear"),
+    plot_bgcolor="rgba(154, 167, 199, 0.09)",
+    yaxis=(dict(showgrid=True))
+)
+
+best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+best20.update_yaxes(showticklabels=True)
+
+
+
+
+
+
+st.plotly_chart(best20, use_container_width=True)
 st.markdown("""---""")
-# Create a Seaborn correlation plot
-
-sns.set_style("dark")
-
-g = sns.pairplot(df, diag_kind="kde")
-g.map_lower(sns.kdeplot, levels=4, color=".2")
- 
-# Display the plot in Streamlit
-st.pyplot(g.fig)
-st.markdown("""---""")
-
-
-# fig_product_sales = px.scatter_matrix(
-#     df,
-#     dimensions= ['time_hold', 'profit', 'bougth', 'sold'],
-#     color="profit_",
-#     color_continuous_scale=px.colors.sequential.Cividis_r,
-#     title="<b>Comparative</b>",
-#     template="plotly_dark",
-# )
-
-# fig_product_sales.update_layout(
-#     xaxis=dict(tickmode="linear"),
-#     plot_bgcolor="rgba(154, 167, 199, 0.09)",
-#     yaxis=(dict(showgrid=True))
-# )
-
-# st.plotly_chart(fig_product_sales, use_container_width=True)
+# st.plotly_chart(worst20, use_container_width=True)
 
 
 

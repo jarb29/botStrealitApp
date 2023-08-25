@@ -126,9 +126,9 @@ def dates_profit(symbol_list, df):
                     new_df  = new_df.sort_values("date")
                     date_ini_idx  = sortedDates.index(new_df['date'].values.tolist()[-1])
                     date_twi_idx = len(sortedDates)
-                    if (date_twi_idx - date_ini_idx) >= 1:
-                        date_num  = date_twi_idx - date_ini_idx
-                        for each in range(date_num-1):
+                    date_num  = date_twi_idx - date_ini_idx
+                    if date_num >= 1:
+                        for each in range(date_num):
                             df2=new_df.loc[new_df['date'] == new_df['date'].values.tolist()[-1]]
                             df2['date'] = sortedDates[int(date_ini_idx+each)]
                             new_dfII = pd.concat([new_dfII, df2], ignore_index = True)
@@ -136,12 +136,13 @@ def dates_profit(symbol_list, df):
         else:
             date_ini_idx  = sortedDates.index(new_df['date'].values.tolist()[-1])
             date_twi_idx = len(sortedDates)
-            if (date_twi_idx - date_ini_idx) >= 1:
-                date_num  = date_twi_idx - date_ini_idx
+            final_date = new_df['date'].values.tolist()[-1]
+            date_num  = date_twi_idx - date_ini_idx
+            if date_num >= 1:
+                final_date_df=new_df.loc[new_df['date'] == final_date]
                 for each in range(date_num):
-                    df2=new_df.loc[new_df['date'] == new_df['date'].values.tolist()[-1]]
-                    df2['date'] = sortedDates[int(date_ini_idx+each)]
-                    new_dfII = pd.concat([new_dfII, df2], ignore_index = True)   
+                    final_date_df['date'] = sortedDates[int(date_ini_idx+each)]
+                    new_dfII = pd.concat([new_dfII, final_date_df], ignore_index = True)   
 
         final = pd.concat([new_dfII, final], ignore_index=True)
        
@@ -151,6 +152,7 @@ symbol_list = df['symbol'].unique()
 
     
 df = sum_profit(symbol_list, df)
+print(df)
 
 df['sum_profit'] = df['sum_profit'].apply(lambda x: round(x,2) if x > 0 else 0.01)
 df['category'] = df['symbol'].apply(lambda x: 'BUSD' if x[-4:] == 'BUSD' else 'USDT')
@@ -169,12 +171,13 @@ df = df.drop(['level_0',  'index'], axis=1)
 df = df.drop_duplicates()
 df  = df.sort_values("date").reset_index()
 df = df.drop(['index'], axis=1).copy()
-print(df)
+# print(df[df['date'] == '2023-08-14'])
+
 max_profit = max(df['sum_profit'].values.tolist()) + 0.5
 
 best20 = px.scatter(df, x="symbol", y="sum_profit", 
                     animation_frame="date", animation_group="symbol",
-                    size="sum_profit", color="category", 
+                    size="sum_profit", color="symbol", 
                     hover_name="symbol", facet_col="category",
                     size_max=15, range_y=[0,max_profit],
                     template="plotly_dark")
