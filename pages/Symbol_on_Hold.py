@@ -67,32 +67,25 @@ data_load_state.text("Done! Alex.")
 
 best20 = px.bar(data, x="symbol", y="time_hold", 
                 pattern_shape="quantity", 
+                color = 'time_hold',
                 pattern_shape_sequence=['/', '\\', 'x', '-', '|', '+', '.'],
                 title="<b>Tiempo Hold per Symbol</b>",
-                color_discrete_sequence=["#CC6600"] * len(data['symbol']),
                 template="plotly_dark",
                 )
 
 
 best20.update_layout(
     xaxis=dict(tickmode="linear"),
-    plot_bgcolor="rgba(0,0,0,0)",
-    yaxis=(dict(showgrid=True))
+    yaxis=(dict(showgrid=True)),
 )
+best20.update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -1.0})
 
 best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 best20.update_yaxes(showticklabels=True)
 
-
-
-
-
-
 st.plotly_chart(best20, use_container_width=True)
 st.markdown("""---""")
 # st.plotly_chart(worst20, use_container_width=True)
-
-
 
 # ---- HIDE STREAMLIT STYLE ----
 hide_st_style = """
