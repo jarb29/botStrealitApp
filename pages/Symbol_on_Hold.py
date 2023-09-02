@@ -19,8 +19,6 @@ table_name = db.Table(name='app_bi')
 response  = table_name.scan()
 response = response['Items']
 
-print(response)
-
 @st.cache_data
 def load_df(response):
     data = []
