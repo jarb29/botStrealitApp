@@ -20,7 +20,7 @@ response  = table_name.scan()
 response = response['Items']
 
 
-st.markdown("""---""")
+
 @st.cache_data
 def load_data(nrows):
     data = pd.read_csv(DATA_URL, nrows=nrows)
@@ -70,7 +70,7 @@ def total(df):
 data_load_state = st.text('Loading data...')
 data = load_df(response)
 data_load_state.text("Done! Alex")
-
+st.markdown("""---""")
 
 df = total(data)
 
@@ -94,3 +94,4 @@ fig.tight_layout()
  
 # Display the plot in Streamlit
 st.pyplot(chart.get_figure())
+st.markdown("""---""")

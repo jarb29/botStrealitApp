@@ -6,9 +6,11 @@ import json
 import datetime
 import plotly.express as px
 
+import numpy as np
+
 import matplotlib.pyplot as plt
 
-st.title("Best and Worst Criptos")
+st.title("Sunburst Profit")
 st.markdown("##")
 
 
@@ -17,6 +19,7 @@ tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
 response  = table_name.scan()
 response = response['Items']
+
 
 @st.cache_data
 def load_df(response):
@@ -51,18 +54,8 @@ def load_df(response):
 
 def total(df):
     df['date'] = pd.to_datetime(df['date_sold'])
-    df['dates'] = df['date'].dt.strftime('%Y-%m-%d')
-    df['Day_of_week'] = df['date'].dt.day_name()
-    df['hour'] = df['date'].dt.strftime('%H')
+    df['date'] = df['date'].dt.strftime('%Y-%m-%d')
     return df
-
-
-def Profit(df):
-    date_quant = df.groupby(['symbol'])['profit'].agg('sum').reset_index()
-    # date_quant = date_quant.sort_values("profit", ascending=False).reset_index(drop=True)
-    return date_quant
-    
-
 
 
 data_load_state = st.text('Loading data...')
@@ -72,66 +65,31 @@ data_load_state.text("Done! Alex.")
 df = total(data)
 
 
-profit = Profit(df)
-profit['size'] = profit['profit'].apply(lambda x: round(x,2) if x > 0 else 0.01)
-# print(profit, "the profit")
+df_sunburst = df.groupby(['method', 'symbol'])['profit'].agg('sum').reset_index()
+df_sunburst['method'] = df_sunburst['method'].apply(lambda x: 'Forecast' if x == 'deep_learning_forecast' else 'Binance')
+df_sunburst['profit_'] = df_sunburst['profit'].apply(lambda x: 'Profit' if x > 0 else 'Loosing')
+df_sunburst['profit'] = df_sunburst['profit'].apply(lambda x: round(x, 2))
+
+df_sunburstII = df.groupby(['method', 'profit_'])['profit'].agg('sum').reset_index()
+df_sunburstII['profit_'] = df_sunburstII['profit'].apply(lambda x: 'Profit' if x > 0 else 'Loosing')
+df_sunburstII['total_profit'] = df_sunburstII['profit'].apply(lambda x: round(x, 2))
+df_sunburstII = df_sunburstII.drop(['profit'], axis=1)
+df_sunburstII['method'] = df_sunburstII['method'].apply(lambda x: 'Forecast' if x == 'deep_learning_forecast' else 'Binance')
+df_sunburst = df_sunburst.merge(df_sunburstII, left_on=['method', 'profit_'], right_on=['method', 'profit_'])
+
+df_sunburst['profit_'] = df_sunburst.apply(lambda x: f'{x.profit_}: {x.total_profit}$', axis=1)
+
+fig = px.sunburst(df_sunburst, path=['method', 'profit_', 'symbol', 'profit'], color = 'profit',
+                  hover_data=['profit'],
+                  color_continuous_scale='RdBu',
+                  template="plotly_dark",
+                title="<b>Profit Sum by Method</b>",
+                  color_continuous_midpoint=np.average(df['profit'], weights=df['profit_'])
+                 
+                 )
 st.markdown("""---""")
-left_column, middle_column = st.columns(2)
-positive = profit[profit['profit'] >= 0]
-negative = profit[profit['profit'] < 0]
-
-earning = round(positive['profit'].sum(), 2)
-loosing = round(negative['profit'].sum(), 2)
-
-with left_column:
-    # st.text('___'*10)
-    st.subheader("Total Earning:")
-    st.subheader(f"Total: {earning}")
-    
-    
-with middle_column:
-    # st.text('___'*10)
-    st.subheader("Total Loosing:")
-    st.subheader(f"{loosing}")
-
-    
-    
-    
+st.plotly_chart(fig, use_container_width=True)
 st.markdown("""---""")
-
-
-# SALES BY HOUR [BAR CHART]
-
-
-best20 = px.scatter(profit, 
-                    x="symbol", 
-                    y="profit", 
-                    color="symbol",
-                    template="plotly_dark",
-                    title="<b>Profit by Symbol</b>",
-                    hover_name="symbol",
-                    size = 'size',
-                    # orientation="h",
-                    size_max=60
-                    )
-
-
-best20.update_layout(
-    plot_bgcolor="rgba(0,0,0,0)",
-    xaxis=(dict(showgrid=True)),
-    yaxis=(dict(showgrid=True))
-)
-
-
-
-
-
-st.plotly_chart(best20, use_container_width=True)
-st.markdown("""---""")
-# st.plotly_chart(worst20, use_container_width=True)
-
-
-
 # ---- HIDE STREAMLIT STYLE ----
 hide_st_style = """
             <style>

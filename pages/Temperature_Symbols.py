@@ -38,14 +38,14 @@ def load_df(response):
         data_dict['bougth'] = float(each_bougth["money_spent"])
 
 
-        data_dict['date_bougth'] = pd.Timestamp(f'20{each_bougth["time"][0]}').strftime('%Y-%m-%d %H:%M:%S')
+        # data_dict['date_bougth'] = pd.Timestamp(f'20{each_bougth["time"][0]}').strftime('%Y-%m-%d %H:%M:%S')
         data.append(data_dict)
 
     df = pd.DataFrame(data)
     df['profit'] = df['sold'] - df['bougth']
-    df['time_hold'] = pd.to_datetime(df['date_sold']) - pd.to_datetime(df['date_bougth'])
-    df['time_hold'] = round(df['time_hold'].dt.seconds / 60, 2)
-    df['profit_'] = df['profit'].apply(lambda x: 0 if x > 0 else 1)
+    # df['time_hold'] = pd.to_datetime(df['date_sold']) - pd.to_datetime(df['date_bougth'])
+    # df['time_hold'] = round(df['time_hold'].dt.seconds / 60, 2)
+    # df['profit_'] = df['profit'].apply(lambda x: 0 if x > 0 else 1)
     
     return df
 
@@ -60,32 +60,33 @@ def load_df(response):
 data_load_state = st.text('Loading data...')
 profit = load_df(response)
 data_load_state.text("Done! Alex.")
-
+st.markdown("""---""")
 # profit = total(data)
 
-profit['sum_profit'] = profit['profit'].apply(lambda x: round(x,2) if x >= 0 else 0.001)
+profit['profit'] = profit['profit'].apply(lambda x: round(x,2) if x >= 0 else 0.001)
 profit['category'] = profit['symbol'].apply(lambda x: 'BUSD' if x[-4:] == 'BUSD' else 'USDT')
 profit['method'] = profit['method'].apply(lambda x: 'Series' if x == 'deep_learning_forecast' else 'RNN')
 
 # print(profit[profit['symbol'] == 'ALGOBUSD'])
 # money = sum(profit[profit['symbol'] == 'ALGOBUSD']['sum_profit'])
-# print(money)
 
-best20 = px.treemap(profit, path=['category', 'method', 'symbol'],
-                    values='sum_profit', color='sum_profit', 
-                    hover_data=['sum_profit'],
-                    color_continuous_scale='RdBu',
-                  
+best20 = px.treemap(profit, path=[px.Constant('category'), 'category', 'method', 'symbol'],
+                    values='profit', color='profit', 
+                    hover_data=['profit'],
+                    color_continuous_midpoint=np.average(profit['profit'], weights=profit['profit']),
+                    color_continuous_scale='RdBu'           
                     )
 
-best20.update_layout(
-    xaxis=dict(tickmode="linear"),
-    plot_bgcolor="rgba(154, 167, 199, 0.09)",
-    yaxis=(dict(showgrid=True))
-)
+# best20.update_layout(
+#     xaxis=dict(tickmode="linear"),
+#     plot_bgcolor="rgba(154, 167, 199, 0.09)",
+#     yaxis=(dict(showgrid=True))
+# )
+best20.update_traces(marker=dict(cornerradius=5))
+best20.update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -0.2})
 
-best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-best20.update_yaxes(showticklabels=True)
+# best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+# best20.update_yaxes(showticklabels=True)
 
 
 

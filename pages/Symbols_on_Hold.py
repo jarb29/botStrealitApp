@@ -8,7 +8,7 @@ import plotly.express as px
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-st.title("Best and Worst Criptos")
+st.title("Symbols That Hasn't Been Sold")
 st.markdown("##")
 
 
@@ -64,18 +64,19 @@ data_load_state = st.text('Loading data...')
 data = load_df(response)
 data_load_state.text("Done! Alex.")
 
+st.markdown("""---""")
 
-best20 = px.bar(data, x="symbol", y="time_hold", 
+best20 = px.bar(data, y="symbol", x="time_hold", 
                 pattern_shape="quantity", 
                 color = 'time_hold',
                 pattern_shape_sequence=['/', '\\', 'x', '-', '|', '+', '.'],
-                title="<b>Tiempo Hold per Symbol</b>",
+                title="<b>Time on Hold per Symbol</b>",
                 template="plotly_dark",
                 )
 
 
 best20.update_layout(
-    xaxis=dict(tickmode="linear"),
+    xaxis=(dict(showgrid=True)),
     yaxis=(dict(showgrid=True)),
 )
 best20.update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -1.0})

@@ -117,7 +117,7 @@ worst20 = px.pie(negative,
 st.plotly_chart(best20, use_container_width=True)
 st.markdown("""---""")
 st.plotly_chart(worst20, use_container_width=True)
-
+st.markdown("""---""")
 
 
 # ---- HIDE STREAMLIT STYLE ----

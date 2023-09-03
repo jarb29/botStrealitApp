@@ -5,7 +5,7 @@ import boto3
 import json
 import datetime
 import plotly.express as px
-st.title('Joint Plot')
+st.title('Time Profit or Loosing Behaviour Plot')
 
 
 
@@ -16,7 +16,6 @@ tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
 response  = table_name.scan()
 response = response['Items']
-st.markdown("""---""")
 
 
 @st.cache_data
@@ -70,7 +69,7 @@ def total(df):
 data_load_state = st.text('Loading data...')
 data = load_df(response)
 data_load_state.text("Done! Alex")
-
+st.markdown("""---""")
 
 df = total(data)
 
@@ -180,6 +179,7 @@ best20 = px.scatter(df, x="symbol", y="sum_profit",
                     size="sum_profit", color="symbol", 
                     hover_name="symbol", facet_col="category",
                     size_max=15, range_y=[0,max_profit],
+                    title="<b>Symbol Behaviour By Time</b>",
                     template="plotly_dark")
 
 best20.update_layout(

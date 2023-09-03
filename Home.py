@@ -169,7 +169,7 @@ fig_product_sales = px.bar(
     x="profit",
     y=sales_by_product_line.index,
     orientation="h",
-    title="<b>Profit by date</b>",
+    title="<b>Profit by Date</b>",
     color_discrete_sequence=["#0063B8"] * len(sales_by_product_line),
     template="plotly_dark",
 )

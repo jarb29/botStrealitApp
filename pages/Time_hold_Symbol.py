@@ -78,3 +78,4 @@ chart = sns.swarmplot(data=df, x="time_hold", y="symbol", orient="h", size=2)
  
 # Display the plot in Streamlit
 st.pyplot(chart.get_figure())
+st.markdown("""---""")

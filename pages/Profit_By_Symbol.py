@@ -8,7 +8,7 @@ import plotly.express as px
 
 import matplotlib.pyplot as plt
 
-st.title("Best and Worst Criptos")
+st.title("Profit by Symbol")
 st.markdown("##")
 
 
@@ -71,7 +71,9 @@ data = load_df(response)
 df = total(data)
 profit = Profit(df)
 
-# print(df, "the profit")
+data_load_state = st.text('Loading data...')
+data = load_df(response)
+data_load_state.text("Done! Alex")
 st.markdown("""---""")
 left_column, middle_column = st.columns(2)
 positive = profit[profit['profit'] >= 0]

@@ -9,7 +9,7 @@ import datetime
 
 import matplotlib.pyplot as plt
 
-st.title("Close choices by Date")
+st.title("Closed Choices by Date")
 st.markdown("##")
 
 
@@ -133,7 +133,7 @@ fig_product_sales = px.bar(
     color="Profit",
     y=sales_by_product_line.date,
     orientation="h",
-    title="<b>Quantity by date</b>",
+    title="<b>Quantity by Date</b>",
     # color_discrete_sequence=["#0083B8"] * len(sales_by_product_line),
     template="plotly_dark",
 )
@@ -204,6 +204,7 @@ st.markdown("""---""")
 st.plotly_chart(fig_hourly_sales_quantity, use_container_width=True)
 st.markdown("""---""")
 st.plotly_chart(symbol, use_container_width=True)
+st.markdown("""---""")
 # left_column, right_column = st.columns(2)
 # left_column.plotly_chart(fig_hourly_sales, use_container_width=True)
 # right_column.plotly_chart(fig_product_sales, use_container_width=True)
