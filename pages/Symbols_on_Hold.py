@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import boto3
 import json
+import time
 import datetime
 import plotly.express as px
 from datetime import datetime
@@ -51,17 +52,17 @@ def load_df(response):
     
     return df
 
+with st.status("Downloading data...", expanded=True) as status:
+    st.write("Searching for data...")
+    data = load_df(response)
+    time.sleep(2)
+    st.write("Found URL.")
+    time.sleep(1)
+    st.write("Downloading data...")
+    time.sleep(1)
+    status.update(label="Download complete!", state="complete", expanded=False)
 
-# def total(df):
-#     df['date'] = pd.to_datetime(df['date_sold'])
-#     df['dates'] = df['date'].dt.strftime('%Y-%m-%d')
-#     df['Day_of_week'] = df['date'].dt.day_name()
-#     df['hour'] = df['date'].dt.strftime('%H')
-#     return df
-
-data_load_state = st.text('Loading data...')
-data = load_df(response)
-data_load_state.text("Done! Alex.")
+st.button('Rerun')
 
 st.markdown("""---""")
 
