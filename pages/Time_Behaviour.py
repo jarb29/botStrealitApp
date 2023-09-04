@@ -12,7 +12,7 @@ st.title('Time Profit or Loosing Behaviour Plot')
 
 
 db = boto3.resource('dynamodb', region_name = 'us-east-1' )
-tables = list(db.tables.all())
+# tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
 response  = table_name.scan()
 response = response['Items']

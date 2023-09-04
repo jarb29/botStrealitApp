@@ -13,8 +13,6 @@ st.markdown("##")
 
 
 db = boto3.resource('dynamodb', region_name = 'us-east-1' )
-tables = list(db.tables.all())
-
 table_name = db.Table(name='app_bi')
 response  = table_name.scan()
 response = response['Items']
@@ -40,6 +38,7 @@ def load_df(response):
         data_dict['method'] = method
         time = each['time'][0].split(' ')[0]+' '+each['time'][0].split(' ')[2]
         data_dict['date_bougth'] = pd.to_datetime(time,  yearfirst=True)
+        print(data_dict['date_bougth'])
         data_dict['money_spent'] = float(money_spent)
 
         now = datetime.now()
