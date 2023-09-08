@@ -65,26 +65,28 @@ with st.status("Downloading data...", expanded=True) as status:
 st.button('Rerun')
 
 st.markdown("""---""")
+if len(data) >0:
+    best20 = px.bar(data, y="symbol", x="time_hold", 
+                    pattern_shape="quantity", 
+                    color = 'time_hold',
+                    pattern_shape_sequence=['/', '\\', 'x', '-', '|', '+', '.'],
+                    title="<b>Time on Hold per Symbol</b>",
+                    template="plotly_dark",
+                    )
 
-best20 = px.bar(data, y="symbol", x="time_hold", 
-                pattern_shape="quantity", 
-                color = 'time_hold',
-                pattern_shape_sequence=['/', '\\', 'x', '-', '|', '+', '.'],
-                title="<b>Time on Hold per Symbol</b>",
-                template="plotly_dark",
-                )
 
+    best20.update_layout(
+        xaxis=(dict(showgrid=True)),
+        yaxis=(dict(showgrid=True)),
+    )
+    best20.update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -1.0})
 
-best20.update_layout(
-    xaxis=(dict(showgrid=True)),
-    yaxis=(dict(showgrid=True)),
-)
-best20.update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -1.0})
+    best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+    best20.update_yaxes(showticklabels=True)
 
-best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-best20.update_yaxes(showticklabels=True)
-
-st.plotly_chart(best20, use_container_width=True)
+    st.plotly_chart(best20, use_container_width=True)
+else:
+    st.write("There is none symbols on HOLD...")
 st.markdown("""---""")
 # st.plotly_chart(worst20, use_container_width=True)
 
