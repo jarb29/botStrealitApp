@@ -42,7 +42,7 @@ def load_df(response):
 
         now = datetime.now()
         data_dict['date'] = now.strftime("%Y-%m-%d %H:%M:%S")
-        t1  = pd.to_datetime(data_dict['date'])
+        t1  = pd.to_datetime(now.strftime("%Y-%m-%d %H:%M:%S"))
         t2 = pd.to_datetime(data_dict['date_bougth'])
         data_dict['time_hold'] = round(pd.Timedelta(t1 - t2).seconds / 3600.0, 2)
         
