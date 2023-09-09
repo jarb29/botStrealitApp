@@ -65,7 +65,7 @@ now = datetime.now()
 t1  = pd.to_datetime(now.strftime("%Y-%m-%d %H:%M:%S"))
     
 
-data['time_hold'] = data['date_bougth'].apply(lambda x: round(pd.Timedelta(pd.to_datetime(x)-pd.to_datetime(t1)).seconds/60,2))  
+data['time_hold'] = data['date_bougth'].apply(lambda x: round(pd.Timedelta(pd.to_datetime(t1)-pd.to_datetime(x)).seconds/60,2))  
         
         
 st.markdown("""---""")
