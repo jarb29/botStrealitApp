@@ -40,11 +40,7 @@ def load_df(response):
         data_dict['date_bougth'] = pd.to_datetime(time,  yearfirst=True)
         data_dict['money_spent'] = float(money_spent)
 
-        now = datetime.now()
-        data_dict['date'] = now.strftime("%Y-%m-%d %H:%M:%S")
-        t1  = pd.to_datetime(now.strftime("%Y-%m-%d %H:%M:%S"))
-        t2 = pd.to_datetime(data_dict['date_bougth'])
-        data_dict['time_hold'] = round(pd.Timedelta(t1 - t2).seconds / 3600.0, 2)
+
         
         data.append(data_dict)
     df = pd.DataFrame(data)
@@ -62,13 +58,23 @@ with st.status("Downloading data...", expanded=True) as status:
     status.update(label="Download complete!", state="complete", expanded=False)
 st.button('Rerun')
 
+
+
+
+now = datetime.now()
+t1  = pd.to_datetime(now.strftime("%Y-%m-%d %H:%M:%S"))
+    
+
+data['time_hold'] = data['date_bougth'].apply(lambda x: round(pd.Timedelta(pd.to_datetime(x)-pd.to_datetime(t1)).seconds/60,2))  
+        
+        
 st.markdown("""---""")
 if len(data) >0:
     best20 = px.bar(data, y="symbol", x="time_hold", 
                     pattern_shape="quantity", 
                     color = 'time_hold',
                     pattern_shape_sequence=['/', '\\', 'x', '-', '|', '+', '.'],
-                    title="<b>Time on Hold per Symbol in Hours</b>",
+                    title="<b>Time on Hold per Symbol in minutes</b>",
                     template="plotly_dark",
                     )
 
