@@ -7,7 +7,6 @@ import time
 import datetime
 import plotly.express as px
 from datetime import datetime
-import matplotlib.pyplot as plt
 
 st.title("Symbols That Hasn't Been Sold")
 st.markdown("##")
@@ -39,15 +38,15 @@ def load_df(response):
         data_dict['method'] = method
         time = each['time'][0].split(' ')[0]+' '+each['time'][0].split(' ')[2]
         data_dict['date_bougth'] = pd.to_datetime(time,  yearfirst=True)
-        print(data_dict['date_bougth'])
         data_dict['money_spent'] = float(money_spent)
 
         now = datetime.now()
         data_dict['date'] = now.strftime("%Y-%m-%d %H:%M:%S")
-        data_dict['time_hold'] = round((pd.to_datetime(data_dict['date']) - pd.to_datetime(data_dict['date_bougth']))/ np.timedelta64(1, 'h'), 2)
-        data.append(data_dict)
+        t1  = pd.to_datetime(data_dict['date'])
+        t2 = pd.to_datetime(data_dict['date_bougth'])
+        data_dict['time_hold'] = round(pd.Timedelta(t1 - t2).seconds / 3600.0, 2)
         
-
+        data.append(data_dict)
     df = pd.DataFrame(data)
     
     return df
@@ -61,7 +60,6 @@ with st.status("Downloading data...", expanded=True) as status:
     st.write("Downloading data...")
     time.sleep(1)
     status.update(label="Download complete!", state="complete", expanded=False)
-
 st.button('Rerun')
 
 st.markdown("""---""")
@@ -70,7 +68,7 @@ if len(data) >0:
                     pattern_shape="quantity", 
                     color = 'time_hold',
                     pattern_shape_sequence=['/', '\\', 'x', '-', '|', '+', '.'],
-                    title="<b>Time on Hold per Symbol</b>",
+                    title="<b>Time on Hold per Symbol in Hours</b>",
                     template="plotly_dark",
                     )
 
