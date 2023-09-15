@@ -170,7 +170,8 @@ df = df.drop(['level_0',  'index'], axis=1)
 df = df.drop_duplicates()
 df  = df.sort_values("date").reset_index()
 df = df.drop(['index'], axis=1).copy()
-# print(df[df['date'] == '2023-08-14'])
+df = df[df['date'] >= '2023-07-21']
+# print(df[df['symbol'] == 'CTSIUSDT'])
 
 max_profit = max(df['sum_profit'].values.tolist()) + 0.5
 

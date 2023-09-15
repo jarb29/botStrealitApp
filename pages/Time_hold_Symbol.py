@@ -65,17 +65,58 @@ data_load_state.text("Done! Alex")
 
 
 df = total(data)
+df['category'] = df['symbol'].apply(lambda x: 'BUSD' if x[-4:] == 'BUSD' else 'USDT')
 
- 
+
+#  BUSD and binance
+BUSD_and_binace  = df[(df['method'] == 'deep_learning_binance') & (df['category']=='BUSD')] 
+
+#  BUSD and series
+BUSD_and_series  = df[(df['method'] == 'deep_learning_forecast') & (df['category']=='BUSD')] 
+
+#  USDT and binance
+USDT_and_binace  = df[(df['method'] == 'deep_learning_binance') & (df['category']=='USDT')] 
+
+#  USDT and series
+USDT_and_series  = df[(df['method'] == 'deep_learning_forecast') & (df['category']=='USDT')] 
+
+
+
 
 sns.set_style("dark")
 st.markdown("""---""")
-chart = sns.catplot(data=df, x="time_hold", y="symbol", kind="violin", color=".9", inner=None, height=8, aspect=1)
-
-chart = sns.swarmplot(data=df, x="time_hold", y="symbol", orient="h", size=2)
-
-
- 
+st.text("BUSD and binance")
+chart = sns.catplot(data=BUSD_and_binace, x="time_hold", y="symbol", kind="violin", color=".9", inner=None, height=8, aspect=1)
+chart = sns.swarmplot(data=BUSD_and_binace, x="time_hold", y="symbol", orient="h", size=1)
 # Display the plot in Streamlit
 st.pyplot(chart.get_figure())
+
+
 st.markdown("""---""")
+st.text("BUSD and Series")
+chart1 = sns.catplot(data=BUSD_and_series, x="time_hold", y="symbol", kind="violin", color=".9", inner=None, height=8, aspect=1)
+chart1 = sns.swarmplot(data=BUSD_and_series, x="time_hold", y="symbol", orient="h", size=1)
+# Display the plot in Streamlit
+st.pyplot(chart1.get_figure())
+
+
+
+st.markdown("""---""")
+st.text("USDT and binance")
+chart2 = sns.catplot(data=USDT_and_binace, x="time_hold", y="symbol", kind="violin", color=".9", inner=None, height=8, aspect=1)
+chart2 = sns.swarmplot(data=USDT_and_binace, x="time_hold", y="symbol", orient="h", size=1)
+# Display the plot in Streamlit
+st.pyplot(chart2.get_figure())
+
+
+
+
+st.markdown("""---""")
+st.text("USDT and Series")
+chart3 = sns.catplot(data=USDT_and_series, x="time_hold", y="symbol", kind="violin", color=".9", inner=None, height=8, aspect=1)
+chart3 = sns.swarmplot(data=USDT_and_series, x="time_hold", y="symbol", orient="h", size=1)
+# Display the plot in Streamlit
+st.pyplot(chart3.get_figure())
+st.markdown("""---""")
+
+

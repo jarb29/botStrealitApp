@@ -39,6 +39,7 @@ def load_df(response):
         time = each['time'][0].split(' ')[0]+' '+each['time'][0].split(' ')[2]
         data_dict['date_bougth'] = pd.to_datetime(time,  yearfirst=True)
         data_dict['money_spent'] = float(money_spent)
+        data_dict['current_money'] = float(price) * float(quantity_to_sell)
 
 
         
@@ -65,12 +66,13 @@ now = datetime.now()
 t1  = pd.to_datetime(now.strftime("%Y-%m-%d %H:%M:%S"))
     
 
-data['time_hold'] = data['date_bougth'].apply(lambda x: (t1-x).total_seconds()/60)  
-        
+data['time_hold'] = data['date_bougth'].apply(lambda x: round((t1-x).total_seconds()/60, 2))  
+data['loosing'] = round(data['money_spent'] - data['current_money'], 2)
+
 st.markdown("""---""")
 if len(data) >0:
     best20 = px.bar(data, y="symbol", x="time_hold", 
-                    pattern_shape="quantity", 
+                    pattern_shape="loosing", 
                     color = 'time_hold',
                     pattern_shape_sequence=['/', '\\', 'x', '-', '|', '+', '.'],
                     title="<b>Time on Hold per Symbol in minutes</b>",

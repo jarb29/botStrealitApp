@@ -69,7 +69,6 @@ profit['method'] = profit['method'].apply(lambda x: 'Series' if x == 'deep_learn
 
 # print(profit[profit['symbol'] == 'ALGOBUSD'])
 # money = sum(profit[profit['symbol'] == 'ALGOBUSD']['sum_profit'])
-
 best20 = px.treemap(profit, path=[px.Constant('category'), 'category', 'method', 'symbol'],
                     values='profit', color='profit', 
                     hover_data=['profit'],
