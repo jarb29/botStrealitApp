@@ -65,7 +65,7 @@ st.markdown("""---""")
 
 profit['profit'] = profit['profit'].apply(lambda x: round(x,2) if x >= 0 else 0.001)
 profit['category'] = profit['symbol'].apply(lambda x: 'BUSD' if x[-4:] == 'BUSD' else 'USDT')
-profit['method'] = profit['method'].apply(lambda x: 'Series' if x == 'deep_learning_forecast' else 'RNN')
+profit['method'] = profit['method'].apply(lambda x: 'CATEGORICAL' if x == 'deep_learning_forecast' else 'RNN')
 
 # print(profit[profit['symbol'] == 'ALGOBUSD'])
 # money = sum(profit[profit['symbol'] == 'ALGOBUSD']['sum_profit'])

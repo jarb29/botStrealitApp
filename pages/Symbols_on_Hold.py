@@ -68,12 +68,14 @@ t1  = pd.to_datetime(now.strftime("%Y-%m-%d %H:%M:%S"))
 
 data['time_hold'] = data['date_bougth'].apply(lambda x: round((t1-x).total_seconds()/60, 2))  
 data['loosing'] = round(data['money_spent'] - data['current_money'], 2)
+data['method'] = data['method'].apply(lambda x: 'CATEGORICAL' if x == 'deep_learning_forecast' else 'RNN')
+
 
 st.markdown("""---""")
 if len(data) >0:
     best20 = px.bar(data, y="symbol", x="time_hold", 
                     pattern_shape="loosing", 
-                    color = 'time_hold',
+                    color = "symbol",
                     pattern_shape_sequence=['/', '\\', 'x', '-', '|', '+', '.'],
                     title="<b>Time on Hold per Symbol in minutes</b>",
                     template="plotly_dark",
@@ -90,6 +92,29 @@ if len(data) >0:
     best20.update_yaxes(showticklabels=True)
 
     st.plotly_chart(best20, use_container_width=True)
+    st.markdown("""---""")
+    loosing = px.bar(data, y="loosing", x="method", 
+                    pattern_shape="loosing", 
+                    color = 'symbol',
+                    pattern_shape_sequence=['/', '\\', 'x', '-', '|', '+', '.'],
+                    title="<b>Loosing by Symbol</b>",
+                    template="plotly_dark",
+                    )
+
+
+    loosing .update_layout(
+        xaxis=(dict(showgrid=True)),
+        yaxis=(dict(showgrid=True)),
+    )
+    loosing .update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -1.0})
+
+    loosing .for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
+    loosing .update_yaxes(showticklabels=True)
+
+    st.plotly_chart(    loosing , use_container_width=True)
+    
+    
+    
 else:
     st.write("There is none symbols on HOLD...")
 st.markdown("""---""")
