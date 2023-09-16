@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 import boto3
 import json
+import time
 import datetime
 import plotly.express as px
 st.title('Time Profit or Loosing Behaviour Plot')
@@ -68,8 +69,7 @@ def total(df):
 
 data_load_state = st.text('Loading data...')
 data = load_df(response)
-data_load_state.text("Done! Alex")
-st.markdown("""---""")
+
 
 df = total(data)
 
@@ -148,10 +148,12 @@ def dates_profit(symbol_list, df):
     return final
 
 symbol_list = df['symbol'].unique()
-
-    
 df = sum_profit(symbol_list, df)
-print(df)
+    
+
+
+
+
 
 df['sum_profit'] = df['sum_profit'].apply(lambda x: round(x,2) if x > 0 else 0.01)
 df['category'] = df['symbol'].apply(lambda x: 'BUSD' if x[-4:] == 'BUSD' else 'USDT')
@@ -174,6 +176,20 @@ df = df[df['date'] >= '2023-07-21']
 # print(df[df['symbol'] == 'CTSIUSDT'])
 
 max_profit = max(df['sum_profit'].values.tolist()) + 0.5
+
+with st.status("Downloading data...", expanded=True) as status:
+    st.write("Searching and Downloading data...")
+    time.sleep(3)
+    st.write("Tranforming the data...")
+    time.sleep(3)
+    st.write("Ploting...")
+    time.sleep(1)
+    status.update(label="Tranforming and Ploting complete!", state="complete", expanded=False)
+st.button('Rerun')
+
+
+st.markdown("""---""")
+data_load_state.text("Done! Alex")
 
 best20 = px.scatter(df, x="symbol", y="sum_profit", 
                     animation_frame="date", animation_group="symbol",

@@ -47,16 +47,15 @@ def load_df(response):
     df = pd.DataFrame(data)
     
     return df
-
+data = load_df(response)
 with st.status("Downloading data...", expanded=True) as status:
-    st.write("Searching for data...")
-    data = load_df(response)
-    time.sleep(2)
-    st.write("Found URL.")
+    st.write("Searching and Downloading data...")
+    time.sleep(3)
+    st.write("Tranforming the data...")
+    time.sleep(3)
+    st.write("Ploting...")
     time.sleep(1)
-    st.write("Downloading data...")
-    time.sleep(1)
-    status.update(label="Download complete!", state="complete", expanded=False)
+    status.update(label="Tranforming and Ploting complete!", state="complete", expanded=False)
 st.button('Rerun')
 
 
