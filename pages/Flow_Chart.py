@@ -53,12 +53,21 @@ def load_df(response):
 def total(df):
     df['date'] = pd.to_datetime(df['date_sold'])
     df['dates'] = df['date'].dt.strftime('%Y-%m-%d')
-    df['Day_of_week'] = df['date'].dt.day_name()
-    df['hour'] = df['date'].dt.strftime('%H')
+    df['Sold'] = df['date'].dt.day_name()
+    df['hour_sold'] = df['date'].dt.strftime('%H')
     return df
 
+def total_bougth(df):
+    df['date_bougth'] = pd.to_datetime(df['date_bougth'])
+    df['dates_bougth'] = df['date_bougth'].dt.strftime('%Y-%m-%d')
+    df['Bought'] = df['date_bougth'].dt.day_name()
+    df['hour_bougth'] = df['date'].dt.strftime('%H')
+    return df
+
+
+
 def close(df):
-    date_quant = df.groupby(['symbol', 'method', 'profit_', 'Day_of_week', 'hour'])['profit'].agg('count').reset_index()
+    date_quant = df.groupby(['symbol', 'method', 'profit_', 'Bought', 'hour_bougth', 'Sold', 'hour_sold'])['profit'].agg('count').reset_index()
     return date_quant
 
 def Profit(df):
@@ -74,7 +83,8 @@ data = load_df(response)
 data_load_state.text("Done! Alex.")
 
 df = total(data)
-
+df = total_bougth(df)
+print(df.head(), 'DAT hour')
 datas = close(df)
 profit = Profit(df)
 # print(profit, "the profit")
@@ -87,7 +97,7 @@ st.sidebar.header("Please Filter Here:")
 symbol = st.sidebar.multiselect(
     "Select the Symbol:",
     options=df["symbol"].unique(),
-    default=df["symbol"][0:20]
+    default=df["symbol"][0:10]
 )
 
 
@@ -107,7 +117,7 @@ df_selection = datas.query(
 
 # # SALES BY PRODUCT LINE [BAR CHART]
 df_selection['Profit'] = df_selection['profit_'].apply(lambda x: 'Profit' if x == 0 else 'Loosing')
-
+df_selection['method'] = df_selection['method'].apply(lambda x: 'CATEG' if x == 'deep_learning_forecast' else 'RNN')
 sales_by_product_line = (
     df_selection
 )
@@ -116,11 +126,11 @@ sales_by_product_line = (
 
 fig = px.parallel_categories(
     df_selection , 
-    dimensions=['symbol', 'method', 'Profit', 'Day_of_week', 'hour'],
+    dimensions=[ 'symbol', 'Bought', 'hour_bougth', 'method',   'Sold', 'hour_sold', 'Profit'],
     color="profit_", 
     color_continuous_scale=px.colors.sequential.Inferno,
     template="plotly_dark",
-    labels={'symbol':'Cripto', 'method':'Chosen Method', 'hour':'Hour'})
+    labels={'symbol':'Cripto', 'method':'Method', 'hour_sold':'HS', 'hour_bougth':'HB'})
 
 
 st.markdown("""---""")
