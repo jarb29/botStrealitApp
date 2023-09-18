@@ -97,7 +97,7 @@ st.sidebar.header("Please Filter Here:")
 symbol = st.sidebar.multiselect(
     "Select the Symbol:",
     options=df["symbol"].unique(),
-    default=df["symbol"][0:10]
+    default=df["symbol"][0:20]
 )
 
 
