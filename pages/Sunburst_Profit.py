@@ -81,12 +81,13 @@ df_sunburst['profit_'] = df_sunburst.apply(lambda x: f'{x.profit_}: {x.total_pro
 
 fig = px.sunburst(df_sunburst, path=['method', 'profit_', 'symbol', 'profit'], color = 'profit',
                   hover_data=['profit'],
-                  color_continuous_scale='RdBu',
+                  color_continuous_scale=["red", 'cyan', "orange", "yellow", "blue"],
                   template="plotly_dark",
-                title="<b>Profit Sum by Method</b>",
-                  color_continuous_midpoint=np.average(df['profit'], weights=df['profit_'])
+                  title="<b>Profit Sum by Method</b>",
+                  color_continuous_midpoint=np.average(df['profit'], weights=df['profit'])
                  
                  )
+fig.update_coloraxes(colorbar={'orientation':'h', 'thickness':10, 'y': -0.3})
 st.markdown("""---""")
 st.plotly_chart(fig, use_container_width=True)
 st.markdown("""---""")

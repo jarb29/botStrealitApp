@@ -132,7 +132,7 @@ fig = px.parallel_categories(
     template="plotly_dark",
     labels={'symbol':'Cripto', 'method':'Method', 'hour_sold':'HS', 'hour_bougth':'HB'})
 
-
+fig.update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -0.2})
 st.markdown("""---""")
 
 st.plotly_chart(fig, use_container_width=True)
