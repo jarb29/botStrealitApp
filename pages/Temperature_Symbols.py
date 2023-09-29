@@ -50,12 +50,6 @@ def load_df(response):
     return df
 
 
-# def total(df):
-#     df['date'] = pd.to_datetime(df['date_sold'])
-#     df['dates'] = df['date'].dt.strftime('%Y-%m-%d')
-#     df['Day_of_week'] = df['date'].dt.day_name()
-#     df['hour'] = df['date'].dt.strftime('%H')
-#     return df
 
 data_load_state = st.text('Loading data...')
 profit = load_df(response)
@@ -66,9 +60,7 @@ st.markdown("""---""")
 profit['profit'] = profit['profit'].apply(lambda x: round(x,2) if x > 0 else 0.001)
 profit['category'] = profit['symbol'].apply(lambda x: 'BUSD' if x[-4:] == 'BUSD' else 'USDT')
 profit['method'] = profit['method'].apply(lambda x: 'CATEGORICAL' if x == 'deep_learning_forecast' else 'RNN')
-# print(profit)
-# print(profit[profit['symbol'] == 'ALGOBUSD'])
-# money = sum(profit[profit['symbol'] == 'ALGOBUSD']['sum_profit'])
+
 best20 = px.treemap(profit[profit['profit']!=0], path=['category', 'method', 'symbol'],
                     values='profit', color='profit', 
                     hover_data=['profit'],
@@ -76,18 +68,8 @@ best20 = px.treemap(profit[profit['profit']!=0], path=['category', 'method', 'sy
                     color_continuous_scale='RdBu'           
                     )
 
-# best20.update_layout(
-#     xaxis=dict(tickmode="linear"),
-#     plot_bgcolor="rgba(154, 167, 199, 0.09)",
-#     yaxis=(dict(showgrid=True))
-# )
 best20.update_traces(marker=dict(cornerradius=5))
 best20.update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -0.2})
-# profit[profit['profit']!=0]
-# best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
-# best20.update_yaxes(showticklabels=True)
-
-
 
 
 
