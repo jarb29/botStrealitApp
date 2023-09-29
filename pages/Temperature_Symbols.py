@@ -63,13 +63,13 @@ data_load_state.text("Done! Alex.")
 st.markdown("""---""")
 # profit = total(data)
 
-profit['profit'] = profit['profit'].apply(lambda x: round(x,2) if x >= 0 else 0.001)
+profit['profit'] = profit['profit'].apply(lambda x: round(x,2) if x > 0 else 0.001)
 profit['category'] = profit['symbol'].apply(lambda x: 'BUSD' if x[-4:] == 'BUSD' else 'USDT')
 profit['method'] = profit['method'].apply(lambda x: 'CATEGORICAL' if x == 'deep_learning_forecast' else 'RNN')
-
+# print(profit)
 # print(profit[profit['symbol'] == 'ALGOBUSD'])
 # money = sum(profit[profit['symbol'] == 'ALGOBUSD']['sum_profit'])
-best20 = px.treemap(profit, path=[px.Constant('category'), 'category', 'method', 'symbol'],
+best20 = px.treemap(profit[profit['profit']!=0], path=['category', 'method', 'symbol'],
                     values='profit', color='profit', 
                     hover_data=['profit'],
                     color_continuous_midpoint=np.average(profit['profit'], weights=profit['profit']),
@@ -83,7 +83,7 @@ best20 = px.treemap(profit, path=[px.Constant('category'), 'category', 'method',
 # )
 best20.update_traces(marker=dict(cornerradius=5))
 best20.update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -0.2})
-
+# profit[profit['profit']!=0]
 # best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 # best20.update_yaxes(showticklabels=True)
 
