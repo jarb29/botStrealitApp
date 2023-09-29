@@ -79,7 +79,7 @@ USDT_and_series  = df[(df['method'] == 'deep_learning_forecast') & (df['category
 
 sns.set_style("dark")
 st.markdown("""---""")
-st.text("USDT and binance")
+st.text("USDT and RNN")
 chart2 = sns.catplot(data=USDT_and_binace, x="time_hold", y="symbol", kind="violin", color=".9", inner=None, height=8, aspect=1)
 chart2 = sns.swarmplot(data=USDT_and_binace, x="time_hold", y="symbol", orient="h", size=1)
 # Display the plot in Streamlit
@@ -89,7 +89,7 @@ st.pyplot(chart2.get_figure())
 
 
 st.markdown("""---""")
-st.text("USDT and Series")
+st.text("USDT and CATEGORICAL")
 chart3 = sns.catplot(data=USDT_and_series, x="time_hold", y="symbol", kind="violin", color=".9", inner=None, height=8, aspect=1)
 chart3 = sns.swarmplot(data=USDT_and_series, x="time_hold", y="symbol", orient="h", size=1)
 # Display the plot in Streamlit

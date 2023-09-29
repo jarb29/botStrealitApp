@@ -87,7 +87,9 @@ for i in range(len(colsInt)-1):
     plt.subplot(round(total_n/3),3,i+1)
     new_df = df[df['symbol'] == colsInt[i]]
     if len(new_df) > 1:
-        chart = sns.histplot(new_df, hue='profit_',x='profit',bins=40,kde=True,palette="flare");
+        chart = sns.histplot(new_df, hue='profit_',x='profit',
+                             bins=40,kde=True,palette="flare");
+        
         plt.gca().set_title(colsInt[i])
     
 fig.tight_layout()

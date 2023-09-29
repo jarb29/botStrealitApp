@@ -84,11 +84,10 @@ data_load_state.text("Done! Alex.")
 
 df = total(data)
 df = total_bougth(df)
-print(df.head(), 'DAT hour')
+# print(df.head(), 'DAT hour')
 datas = close(df)
 profit = Profit(df)
 # print(profit, "the profit")
-
 
 
 
@@ -97,7 +96,7 @@ st.sidebar.header("Please Filter Here:")
 symbol = st.sidebar.multiselect(
     "Select the Symbol:",
     options=df["symbol"].unique(),
-    default=df["symbol"][0:20]
+    default=df["symbol"].unique()[:30]
 )
 
 
@@ -126,11 +125,12 @@ sales_by_product_line = (
 
 fig = px.parallel_categories(
     df_selection , 
-    dimensions=[ 'symbol', 'Bought', 'hour_bougth', 'method',   'Sold', 'hour_sold', 'Profit'],
+    dimensions=[ 'symbol', 'Bought', 'hour_bougth', 'method', 'Sold', 'hour_sold', 'Profit'],
     color="profit_", 
-    color_continuous_scale=px.colors.sequential.Inferno,
+    # color_continuous_scale=px.colors.sequential.Inferno,
     template="plotly_dark",
-    labels={'symbol':'Cripto', 'method':'Method', 'hour_sold':'HS', 'hour_bougth':'HB'})
+    labels={'symbol':'Cripto', 'method':'Method', 'hour_sold':'HS',
+            'hour_bougth':'HB', 'profit_':'Profit'})
 
 fig.update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -0.2})
 st.markdown("""---""")
