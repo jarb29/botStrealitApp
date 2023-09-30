@@ -5,6 +5,7 @@ import boto3
 import json
 import datetime
 import plotly.express as px
+import random
 
 import matplotlib.pyplot as plt
 
@@ -88,15 +89,15 @@ df = total_bougth(df)
 datas = close(df)
 profit = Profit(df)
 # print(profit, "the profit")
-
-
+symbols_names =df["symbol"].unique().tolist()
+shuffle_models = random.sample(symbols_names,len(symbols_names))
 
 # ---- SIDEBAR ----
 st.sidebar.header("Please Filter Here:")
 symbol = st.sidebar.multiselect(
     "Select the Symbol:",
     options=df["symbol"].unique(),
-    default=df["symbol"].unique()[:30]
+    default=shuffle_models[0:30]
 )
 
 

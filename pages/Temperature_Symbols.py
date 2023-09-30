@@ -36,16 +36,10 @@ def load_df(response):
         data_dict['method'] = each_bougth["method"]
         data_dict['date_sold'] = date_sold
         data_dict['bougth'] = float(each_bougth["money_spent"])
-
-
-        # data_dict['date_bougth'] = pd.Timestamp(f'20{each_bougth["time"][0]}').strftime('%Y-%m-%d %H:%M:%S')
         data.append(data_dict)
 
     df = pd.DataFrame(data)
     df['profit'] = df['sold'] - df['bougth']
-    # df['time_hold'] = pd.to_datetime(df['date_sold']) - pd.to_datetime(df['date_bougth'])
-    # df['time_hold'] = round(df['time_hold'].dt.seconds / 60, 2)
-    # df['profit_'] = df['profit'].apply(lambda x: 0 if x > 0 else 1)
     
     return df
 
