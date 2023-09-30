@@ -6,7 +6,7 @@ import json
 import datetime
 import plotly.express as px
 import random
-
+import time
 import matplotlib.pyplot as plt
 
 st.title("From Cripto symbols to Hours")
@@ -79,18 +79,24 @@ def Profit(df):
 
 
 
-data_load_state = st.text('Loading data...')
 data = load_df(response)
-data_load_state.text("Done! Alex.")
-
 df = total(data)
 df = total_bougth(df)
-# print(df.head(), 'DAT hour')
 datas = close(df)
 profit = Profit(df)
-# print(profit, "the profit")
 symbols_names =df["symbol"].unique().tolist()
 shuffle_models = random.sample(symbols_names,len(symbols_names))
+
+with st.status("Downloading data...", expanded=True) as status:
+    st.write("Searching and Downloading data...")
+    time.sleep(3)
+    st.write("Tranforming the data...")
+    time.sleep(3)
+    st.write("Ploting...")
+    time.sleep(1)
+    status.update(label="Tranforming and Ploting complete!", state="complete", expanded=False)
+st.button('Rerun')
+
 
 # ---- SIDEBAR ----
 st.sidebar.header("Please Filter Here:")
