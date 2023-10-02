@@ -58,7 +58,7 @@ profit['method'] = profit['method'].apply(lambda x: 'CATEGORICAL' if x == 'deep_
 best20 = px.treemap(profit[profit['profit']!=0], path=['category', 'method', 'symbol'],
                     values='profit', color='profit', 
                     hover_data=['profit'],
-                    color_continuous_midpoint=np.average(profit['profit'], weights=profit['profit']),
+                    # color_continuous_midpoint=np.average(profit['profit'], weights=profit['profit']),
                     color_continuous_scale='RdBu'           
                     )
 
