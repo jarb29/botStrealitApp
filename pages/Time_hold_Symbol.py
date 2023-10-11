@@ -90,7 +90,7 @@ st.pyplot(chart2.get_figure())
 
 st.markdown("""---""")
 st.text("USDT and CATEGORICAL")
-chart3 = sns.catplot(data=USDT_and_series, x="time_hold", y="symbol", kind="violin", color=".9", inner=None, height=8, aspect=1)
+chart3 = sns.catplot(data=USDT_and_series, x="time_hold", y="symbol", kind="violin", color=".9", inner=None, height=15, aspect=0.5)
 chart3 = sns.swarmplot(data=USDT_and_series, x="time_hold", y="symbol", orient="h", size=1)
 # Display the plot in Streamlit
 st.pyplot(chart3.get_figure())
