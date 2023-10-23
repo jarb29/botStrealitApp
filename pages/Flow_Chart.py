@@ -62,7 +62,7 @@ def total_bougth(df):
     df['date_bougth'] = pd.to_datetime(df['date_bougth'])
     df['dates_bougth'] = df['date_bougth'].dt.strftime('%Y-%m-%d')
     df['Bought'] = df['date_bougth'].dt.day_name()
-    df['hour_bougth'] = df['date'].dt.strftime('%H')
+    df['hour_bougth'] = df['date_bougth'].dt.strftime('%H')
     return df
 
 
