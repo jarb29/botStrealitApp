@@ -104,7 +104,7 @@ st.markdown("""---""")
 
 best20 = px.bar(df, x="profit_", y="profit", color= 'profit_',
                 facet_col="symbol", facet_col_wrap=3,
-                facet_row_spacing=0.02, 
+                facet_row_spacing=0.01, 
                 facet_col_spacing=0.02,
                 height=120*round(len(df['symbol'].unique())/3), 
                 width=800,
