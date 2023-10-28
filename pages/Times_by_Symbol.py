@@ -71,10 +71,6 @@ profit = Profit(positive)
 # print(profit, 'positive')
 # print(profit, "the profit")
 st.markdown("""---""")
-left_column, middle_column = st.columns(2)
-
-st.markdown("""---""")
-
 
 # SALES BY HOUR [BAR CHART]
 profit_50 = profit[0:50]
