@@ -106,8 +106,9 @@ best20 = px.pie(positive,
                           names='symbol', 
                           title='Profitable symbols')
 
-
-negative['profit'] = negative['profit']*-1
+val = negative['profit']*-1
+negative.loc[:, ('profit')] = val
+# negative['profit'] = val
 worst20 = px.pie(negative, 
                           values='profit',
                           names='symbol', 

@@ -6,7 +6,7 @@ import json
 import datetime
 import plotly.express as px
 import datetime
-
+pd.set_option('mode.chained_assignment', None)
 import matplotlib.pyplot as plt
 
 st.title(":bar_chart: Alex Bot Dashboard.")
