@@ -15,7 +15,14 @@ st.markdown("##")
 db = boto3.resource('dynamodb', region_name = 'us-east-1' )
 table_name = db.Table(name='app_bi')
 response  = table_name.scan()
-response = response['Items']
+data = response['Items']
+
+
+while 'LastEvaluatedKey' in response:
+    response = table_name.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+    data.extend(response['Items'])
+
+response = data
 
 @st.cache_data
 def load_df(response):
