@@ -60,11 +60,13 @@ def load_df(response):
 
 def total(df):
     df['date'] = pd.to_datetime(df['date_sold'])
+    df['month'] = df['date'].dt.strftime('%Y-%m')
     df['date'] = df['date'].dt.strftime('%Y-%m-%d')
+    
     return df
 
 def close(df):
-    date_quant = df.groupby(['date', 'profit_'])['symbol'].agg('count').reset_index()
+    date_quant = df.groupby(['month','date', 'profit_', 'method'])['symbol'].agg('count').reset_index()
     return date_quant
 
 data_load_state = st.text('Loading data...')
@@ -74,30 +76,62 @@ data_load_state.text("Done! Alex.")
 df = total(data)
 datas = close(df)
 
-sortedDates = sorted([datetime.datetime.strptime(item, '%Y-%m-%d') for item in df["date"].unique()])
-sortedDates = [item.strftime('%Y-%m-%d') for item in sortedDates]
+sortedMoth = sorted([datetime.datetime.strptime(item, '%Y-%m') for item in df['month'].unique()])
+sortedMonth = [item.strftime('%Y-%m') for item in sortedMoth]
+
+
+
 
 # ---- SIDEBAR ----
 st.sidebar.header("Please Filter Here:")
+month = st.sidebar.multiselect(
+    "Select the Moth:",
+    options=sortedMonth,
+    default=sortedMonth[-6:]
+)
+
+df_selection = datas.query(
+    "month == @month"
+)
+
+sortedDates = sorted([datetime.datetime.strptime(item, '%Y-%m-%d') for item in df_selection["date"].unique()])
+sortedDates = [item.strftime('%Y-%m-%d') for item in sortedDates]
+
 date = st.sidebar.multiselect(
     "Select the Date:",
-    options=df["date"].unique(),
+    options=sortedDates,
     default=sortedDates[-6:]
 )
 
+df_dates = df_selection.query(
+    "date == @date"
+)
+
+
+
+
 profit = st.sidebar.multiselect(
     "Select the Profit:",
-    options=df["profit_"].unique(),
-    default=df["profit_"].unique(),
+    options=df_dates["profit_"].unique(),
+    default=df_dates["profit_"].unique(),
 )
+
+df_profit = df_dates.query(
+    "profit_ == @profit"
+)
+
+
 
 method = st.sidebar.multiselect(
     "Select the Method:",
-    options=df["method"].unique(),
-    default=df["method"].unique(),
+    options=df_profit["method"].unique(),
+    default=df_profit["method"].unique(),
 )
 
 
+df_method = df_profit.query(
+    "method == @method"
+)
 
 
 df_selection = datas.query(

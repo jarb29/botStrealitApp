@@ -82,7 +82,7 @@ sortedDates = [item.strftime('%Y-%m') for item in sortedDates]
 
 
 date = st.sidebar.multiselect(
-    "Select the Date:",
+    "Select the Moth:",
     options=df["date"].unique(),
     default=sortedDates[-6:]
 )
