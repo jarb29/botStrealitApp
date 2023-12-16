@@ -59,7 +59,7 @@ def load_df(response):
 
 def total(df):
     df['date'] = pd.to_datetime(df['date_sold'])
-    df['date'] = df['date'].dt.strftime('%Y-%m-%d')
+    df['date'] = df['date'].dt.strftime('%Y-%m')
     return df
 
 
@@ -77,8 +77,8 @@ st.sidebar.header("Please Filter Here:")
 
 
 
-sortedDates = sorted([datetime.datetime.strptime(item, '%Y-%m-%d') for item in df["date"].unique()])
-sortedDates = [item.strftime('%Y-%m-%d') for item in sortedDates]
+sortedDates = sorted([datetime.datetime.strptime(item, '%Y-%m') for item in df["date"].unique()])
+sortedDates = [item.strftime('%Y-%m') for item in sortedDates]
 
 
 date = st.sidebar.multiselect(
