@@ -12,13 +12,11 @@ import matplotlib.pyplot as plt
 st.title("From Cripto symbols to Hours")
 st.markdown("##")
 
-
-db = boto3.resource('dynamodb', region_name = 'us-east-1' )
+db = boto3.resource('dynamodb', region_name='us-east-1')
 # tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
-response  = table_name.scan()
+response = table_name.scan()
 data = response['Items']
-
 
 while 'LastEvaluatedKey' in response:
     response = table_name.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
@@ -31,7 +29,6 @@ response = data
 def load_df(response):
     data = []
     for count, each in enumerate(response):
-
         data_dict = {}
 
         symbol = each['symbol']
@@ -45,7 +42,6 @@ def load_df(response):
         data_dict['method'] = each_bougth["method"]
         data_dict['date_sold'] = date_sold
         data_dict['bougth'] = float(each_bougth["money_spent"])
-
 
         data_dict['date_bougth'] = pd.Timestamp(f'20{each_bougth["time"][0]}').strftime('%Y-%m-%d %H:%M:%S')
         data.append(data_dict)
@@ -65,6 +61,7 @@ def total(df):
     df['hour_sold'] = df['date'].dt.strftime('%H')
     return df
 
+
 def total_bougth(df):
     df['date_bougth'] = pd.to_datetime(df['date_bougth'])
     df['dates_bougth'] = df['date_bougth'].dt.strftime('%Y-%m-%d')
@@ -73,57 +70,40 @@ def total_bougth(df):
     return df
 
 
-
 def close(df):
-    date_quant = df.groupby(['symbol', 'method', 'profit_', 'Bought', 'hour_bougth', 'Sold', 'hour_sold'])['profit'].agg('count').reset_index()
+    date_quant = df.groupby(['symbol', 'method', 'profit_', 'Bought', 'hour_bougth', 'Sold', 'hour_sold'])[
+        'profit'].agg('count').reset_index()
     return date_quant
+
 
 def Profit(df):
     date_quant = df.groupby(['symbol'])['profit'].agg('sum').reset_index()
     date_quant = date_quant.sort_values("profit", ascending=False).reset_index(drop=True)
     return date_quant
-    
 
 
-
+data_load_state = st.text('Loading data...')
 data = load_df(response)
+data_load_state.text("Done! Alex.")
+
+df = total(data)
+
 df = total(data)
 df = total_bougth(df)
 datas = close(df)
 profit = Profit(df)
-symbols_names =df["symbol"].unique().tolist()
-shuffle_models = random.sample(symbols_names,len(symbols_names))
-
-with st.status("Downloading data...", expanded=True) as status:
-    st.write("Searching and Downloading data...")
-    time.sleep(3)
-    st.write("Tranforming the data...")
-    time.sleep(3)
-    st.write("Ploting...")
-    time.sleep(1)
-    status.update(label="Tranforming and Ploting complete!", state="complete", expanded=False)
-st.button('Rerun')
-
 
 # ---- SIDEBAR ----
 st.sidebar.header("Please Filter Here:")
 symbol = st.sidebar.multiselect(
     "Select the Symbol:",
     options=df["symbol"].unique(),
-    default=shuffle_models[0:30]
+    default=df["symbol"].unique()[0:30]
 )
-
-
-
-
-
 
 df_selection = datas.query(
     "symbol == @symbol"
 )
-
-
-
 
 # st.markdown("""---""")
 
@@ -135,18 +115,16 @@ sales_by_product_line = (
     df_selection
 )
 
-
-
 fig = px.parallel_categories(
-    df_selection , 
-    dimensions=[ 'symbol', 'Bought', 'hour_bougth', 'method', 'Sold', 'hour_sold', 'Profit'],
-    color="profit_", 
+    df_selection,
+    dimensions=['symbol', 'Bought', 'hour_bougth', 'method', 'Sold', 'hour_sold', 'Profit'],
+    color="profit_",
     # color_continuous_scale=px.colors.sequential.Inferno,
     template="plotly_dark",
-    labels={'symbol':'Cripto', 'method':'Method', 'hour_sold':'HS',
-            'hour_bougth':'HB', 'profit_':'Profit'})
+    labels={'symbol': 'Cripto', 'method': 'Method', 'hour_sold': 'HS',
+            'hour_bougth': 'HB', 'profit_': 'Profit'})
 
-fig.update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -0.2})
+fig.update_coloraxes(colorbar={'orientation': 'h', 'thickness': 20, 'y': -0.2})
 st.markdown("""---""")
 
 st.plotly_chart(fig, use_container_width=True)
