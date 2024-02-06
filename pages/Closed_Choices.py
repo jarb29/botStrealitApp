@@ -167,7 +167,6 @@ profit_df_selection_method_quantity['Quantity'] = profit_df_selection_method_qua
 profit_df_selection_method_quantity = (
     profit_df_selection_method_quantity
 )
-print(sales_by_product_line)
 
 fig_product_sales = px.bar(
     sales_by_product_line,
