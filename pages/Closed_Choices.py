@@ -154,7 +154,7 @@ st.markdown("""---""")
 df_selection['Profit'] = df_selection['profit_'].apply(lambda x: 'Profit' if x == 0 else 'Loosing')
 df_selection['Quantity'] = df_selection['symbol']
 sales_by_product_line = (
-    df_selection
+    df_selection.groupby(['date', 'Profit'])['Quantity'].agg('sum').reset_index()
 )
 
 df_selection_method['method'] = df_selection_method['method'].apply(lambda x: 'Forecast' if x == 'deep_learning_forecast' else 'Binance')
@@ -167,6 +167,7 @@ profit_df_selection_method_quantity['Quantity'] = profit_df_selection_method_qua
 profit_df_selection_method_quantity = (
     profit_df_selection_method_quantity
 )
+print(sales_by_product_line)
 
 fig_product_sales = px.bar(
     sales_by_product_line,
@@ -180,8 +181,8 @@ fig_product_sales = px.bar(
 )
 fig_product_sales.update_layout(
     plot_bgcolor="rgba(0,0,0,0)",
-    xaxis=(dict(showgrid=True)),
-    yaxis=(dict(showgrid=True))
+    # xaxis=(dict(showgrid=True)),
+    # yaxis=(dict(showgrid=True))
 )
 
 # SALES BY HOUR [BAR CHART]
