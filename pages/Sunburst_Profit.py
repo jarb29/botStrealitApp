@@ -72,13 +72,17 @@ data_load_state.text("Done! Alex.")
 df = total(data)
 
 
+df['method'] = df['method'].apply(lambda x: 'deep_learning_binance' if x == 'basic_sweep' else x)
 df_sunburst = df.groupby(['method', 'symbol'])['profit'].agg('sum').reset_index()
+
 df_sunburst['method'] = df_sunburst['method'].apply(lambda x: 'CATEG' if x == 'deep_learning_forecast' else 'RNN')
-df_sunburst['profit_'] = df_sunburst['profit'].apply(lambda x: 'Profit' if x > 0 else 'Loosing')
+df_sunburst['profit_'] = df_sunburst['profit'].apply(lambda x: 'Profit' if x >= 0 else 'Loosing')
 df_sunburst['profit'] = df_sunburst['profit'].apply(lambda x: round(x, 2))
 
+
 df_sunburstII = df.groupby(['method', 'profit_'])['profit'].agg('sum').reset_index()
-df_sunburstII['profit_'] = df_sunburstII['profit'].apply(lambda x: 'Profit' if x > 0 else 'Loosing')
+
+df_sunburstII['profit_'] = df_sunburstII['profit'].apply(lambda x: 'Profit' if x >= 0 else 'Loosing')
 df_sunburstII['total_profit'] = df_sunburstII['profit'].apply(lambda x: round(x, 2))
 df_sunburstII = df_sunburstII.drop(['profit'], axis=1)
 df_sunburstII['method'] = df_sunburstII['method'].apply(lambda x: 'CATEG' if x == 'deep_learning_forecast' else 'RNN')
