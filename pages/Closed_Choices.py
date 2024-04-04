@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 import boto3
 import json
-import datetime
+from datetime import datetime as dt
+from datetime import timedelta
 import plotly.express as px
 import datetime
 pd.set_option('mode.chained_assignment', None)
@@ -107,7 +108,18 @@ df_dates = df_selection.query(
     "date == @date"
 )
 
+df_symbol = df.groupby(['month','date', 'profit_', 'symbol'])['profit'].agg('sum').reset_index()
 
+
+
+now = dt.now()
+dates_7 = []
+for x in range(2):
+    d = now - timedelta(days=x)
+    print(d.strftime("%Y-%m-%d"))
+    dates_7.append(d.strftime("%Y-%m-%d"))
+
+df_date = df_symbol[df_symbol.date.isin(dates_7)]
 
 
 profit = st.sidebar.multiselect(
@@ -157,6 +169,7 @@ sales_by_product_line = (
     df_selection.groupby(['date', 'Profit'])['Quantity'].agg('sum').reset_index()
 )
 
+
 df_selection_method['method'] = df_selection_method['method'].apply(lambda x: 'Forecast' if x == 'deep_learning_forecast' else 'Binance')
 
 profit_df_selection_method = (
@@ -178,7 +191,23 @@ fig_product_sales = px.bar(
     # color_discrete_sequence=["#0083B8"] * len(sales_by_product_line),
     template="plotly_dark",
 )
+
 fig_product_sales.update_layout(
+    plot_bgcolor="rgba(0,0,0,0)",
+    # xaxis=(dict(showgrid=True)),
+    # yaxis=(dict(showgrid=True))
+)
+
+fig_profit_day = px.bar(df_date,
+                        x="date",
+                        y="profit",
+                        color="symbol",
+                        title="<b>Profit by Symbol</b>",
+                        pattern_shape="symbol",
+                        pattern_shape_sequence=['/', '\\', 'x', '-', '|', '+', '.'],
+                        template="plotly_dark",)
+
+fig_profit_day.update_layout(
     plot_bgcolor="rgba(0,0,0,0)",
     # xaxis=(dict(showgrid=True)),
     # yaxis=(dict(showgrid=True))
@@ -239,6 +268,8 @@ symbol.update_layout(
 
 
 st.plotly_chart(fig_product_sales, use_container_width=True)
+st.markdown("""---""")
+st.plotly_chart(fig_profit_day, use_container_width=True)
 st.markdown("""---""")
 st.plotly_chart(fig_hourly_sales, use_container_width=True)
 st.markdown("""---""")
