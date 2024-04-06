@@ -7,19 +7,18 @@ from datetime import datetime as dt
 from datetime import timedelta
 import plotly.express as px
 import datetime
+
 pd.set_option('mode.chained_assignment', None)
 import matplotlib.pyplot as plt
 
 st.title("Closed Choices by Date")
 st.markdown("##")
 
-
-db = boto3.resource('dynamodb', region_name = 'us-east-1' )
+db = boto3.resource('dynamodb', region_name='us-east-1')
 # tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
-response  = table_name.scan()
+response = table_name.scan()
 data = response['Items']
-
 
 while 'LastEvaluatedKey' in response:
     response = table_name.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
@@ -32,7 +31,6 @@ response = data
 def load_df(response):
     data = []
     for count, each in enumerate(response):
-
         data_dict = {}
 
         symbol = each['symbol']
@@ -46,7 +44,6 @@ def load_df(response):
         data_dict['method'] = each_bougth["method"]
         data_dict['date_sold'] = date_sold
         data_dict['bougth'] = float(each_bougth["money_spent"])
-
 
         data_dict['date_bougth'] = pd.Timestamp(f'20{each_bougth["time"][0]}').strftime('%Y-%m-%d %H:%M:%S')
         data.append(data_dict)
@@ -63,12 +60,14 @@ def total(df):
     df['date'] = pd.to_datetime(df['date_sold'])
     df['month'] = df['date'].dt.strftime('%Y-%m')
     df['date'] = df['date'].dt.strftime('%Y-%m-%d')
-    
+
     return df
 
+
 def close(df):
-    date_quant = df.groupby(['month','date', 'profit_', 'method'])['symbol'].agg('count').reset_index()
+    date_quant = df.groupby(['month', 'date', 'profit_', 'method'])['symbol'].agg('count').reset_index()
     return date_quant
+
 
 data_load_state = st.text('Loading data...')
 data = load_df(response)
@@ -79,9 +78,6 @@ datas = close(df)
 
 sortedMoth = sorted([datetime.datetime.strptime(item, '%Y-%m') for item in df['month'].unique()])
 sortedMonth = [item.strftime('%Y-%m') for item in sortedMoth]
-
-
-
 
 # ---- SIDEBAR ----
 st.sidebar.header("Please Filter Here:")
@@ -108,19 +104,15 @@ df_dates = df_selection.query(
     "date == @date"
 )
 
-df_symbol = df.groupby(['month','date', 'profit_', 'symbol'])['profit'].agg('sum').reset_index()
-
-
+df_symbol = df.groupby(['month', 'date', 'profit_', 'symbol'])['profit'].agg('sum').reset_index()
 
 now = dt.now()
 dates_7 = []
-for x in range(2):
+for x in range(4):
     d = now - timedelta(days=x)
-    print(d.strftime("%Y-%m-%d"))
     dates_7.append(d.strftime("%Y-%m-%d"))
 
 df_date = df_symbol[df_symbol.date.isin(dates_7)]
-
 
 profit = st.sidebar.multiselect(
     "Select the Profit:",
@@ -132,19 +124,15 @@ df_profit = df_dates.query(
     "profit_ == @profit"
 )
 
-
-
 method = st.sidebar.multiselect(
     "Select the Method:",
     options=df_profit["method"].unique(),
     default=df_profit["method"].unique(),
 )
 
-
 df_method = df_profit.query(
     "method == @method"
 )
-
 
 df_selection = datas.query(
     "date == @date & profit_ ==@profit"
@@ -158,9 +146,7 @@ symbol_df = df.query(
     "date == @date & profit_ ==@profit"
 )
 
-
 st.markdown("""---""")
-
 
 # SALES BY PRODUCT LINE [BAR CHART]
 df_selection['Profit'] = df_selection['profit_'].apply(lambda x: 'Profit' if x == 0 else 'Loosing')
@@ -169,13 +155,14 @@ sales_by_product_line = (
     df_selection.groupby(['date', 'Profit'])['Quantity'].agg('sum').reset_index()
 )
 
-
-df_selection_method['method'] = df_selection_method['method'].apply(lambda x: 'Forecast' if x == 'deep_learning_forecast' else 'Binance')
+df_selection_method['method'] = df_selection_method['method'].apply(
+    lambda x: 'Forecast' if x == 'deep_learning_forecast' else 'Binance')
 
 profit_df_selection_method = (
     df_selection_method.groupby(['date', 'method'])['profit'].agg('sum').reset_index()
 )
-profit_df_selection_method_quantity = df_selection_method.groupby(['date', 'method'])['symbol'].agg('count').reset_index()
+profit_df_selection_method_quantity = df_selection_method.groupby(['date', 'method'])['symbol'].agg(
+    'count').reset_index()
 profit_df_selection_method_quantity['Quantity'] = profit_df_selection_method_quantity['symbol']
 profit_df_selection_method_quantity = (
     profit_df_selection_method_quantity
@@ -205,20 +192,15 @@ fig_profit_day = px.bar(df_date,
                         title="<b>Profit by Symbol</b>",
                         pattern_shape="symbol",
                         pattern_shape_sequence=['/', '\\', 'x', '-', '|', '+', '.'],
-                        template="plotly_dark",)
-
-fig_profit_day.update_layout(
-    plot_bgcolor="rgba(0,0,0,0)",
-    # xaxis=(dict(showgrid=True)),
-    # yaxis=(dict(showgrid=True))
-)
+                        template="plotly_dark"
+                        )
 
 # SALES BY HOUR [BAR CHART]
 fig_hourly_sales = px.bar(
     profit_df_selection_method,
     y=profit_df_selection_method.date,
     x="profit",
-    color = 'method',
+    color='method',
     orientation="h",
     title="<b>Profit by Method</b>",
     # color_discrete_sequence=["#0083B8"] * len(profit_df_selection_method),
@@ -234,7 +216,7 @@ fig_hourly_sales_quantity = px.bar(
     profit_df_selection_method_quantity,
     y=profit_df_selection_method_quantity.date,
     x="Quantity",
-    color = 'method',
+    color='method',
     orientation="h",
     title="<b>Quantity by Method</b>",
     # color_discrete_sequence=["#0083B8"] * len(profit_df_selection_method),
@@ -245,8 +227,7 @@ fig_hourly_sales_quantity.update_layout(
     # plot_bgcolor="rgba(0,0,0,0)",
     yaxis=(dict(showgrid=True))
 )
-symbol_df =  ( symbol_df.groupby(['symbol'])['profit'].agg('sum').reset_index())
-
+symbol_df = (symbol_df.groupby(['symbol'])['profit'].agg('sum').reset_index())
 
 symbol = px.bar(
     symbol_df,
@@ -263,9 +244,6 @@ symbol.update_layout(
     # plot_bgcolor="rgba(0,0,0,0)",
     yaxis=(dict(showgrid=True))
 )
-
-
-
 
 st.plotly_chart(fig_product_sales, use_container_width=True)
 st.markdown("""---""")
