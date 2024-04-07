@@ -85,11 +85,11 @@ def count_values(x, val, df):
     a = int(df.loc[df['symbols'] == x, 'counts'].iloc[0])
     val = round(val)
     if a > 2 * val:
-        return f'TOP1_>{2*val}'
+        return f'TOP1>{2*val}'
     elif a < val:
-        return f'TOP3_<{val}'
+        return f'TOP3<{val}'
     else:
-        return f'TOP2_>{val}_<{2*val}'
+        return f'{val}>TOP2<{2*val}'
 
 
 profit['category'] = profit['symbol'].apply(lambda x: count_values(x, n3, count_df))
