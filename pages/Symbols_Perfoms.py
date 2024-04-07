@@ -81,7 +81,6 @@ df = total(data)
 
 profit = Profit(df)
 profit['size'] = profit['profit'].apply(lambda x: round(x,2) if x > 0 else 0.01)
-# print(profit, "the profit")
 st.markdown("""---""")
 left_column, middle_column = st.columns(2)
 positive = profit[profit['profit'] >= 0]

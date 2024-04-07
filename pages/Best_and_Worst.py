@@ -79,7 +79,6 @@ df = total(data)
 
 
 profit = Profit(df)
-# print(profit, "the profit")
 st.markdown("""---""")
 left_column, middle_column = st.columns(2)
 positive = profit[profit['profit'] >= 0]

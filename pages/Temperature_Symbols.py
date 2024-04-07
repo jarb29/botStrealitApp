@@ -11,13 +11,11 @@ import matplotlib.pyplot as plt
 st.title("Best and Worst Criptos")
 st.markdown("##")
 
-
-db = boto3.resource('dynamodb', region_name = 'us-east-1' )
+db = boto3.resource('dynamodb', region_name='us-east-1')
 # tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
-response  = table_name.scan()
+response = table_name.scan()
 data = response['Items']
-
 
 while 'LastEvaluatedKey' in response:
     response = table_name.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
@@ -25,11 +23,11 @@ while 'LastEvaluatedKey' in response:
 
 response = data
 
+
 @st.cache_data
 def load_df(response):
     data = []
     for count, each in enumerate(response):
-
         data_dict = {}
 
         symbol = each['symbol']
@@ -47,9 +45,8 @@ def load_df(response):
 
     df = pd.DataFrame(data)
     df['profit'] = df['sold'] - df['bougth']
-    
-    return df
 
+    return df
 
 
 data_load_state = st.text('Loading data...')
@@ -57,28 +54,80 @@ profit = load_df(response)
 data_load_state.text("Done! Alex.")
 st.markdown("""---""")
 # profit = total(data)
+loosing = profit[profit['profit'] < 0]
+profit = profit[profit['profit'] > 0]
 
-profit['profit'] = profit['profit'].apply(lambda x: round(x,2) if x > 0 else 0.001)
-profit['category'] = profit['symbol'].apply(lambda x: 'BUSD' if x[-4:] == 'BUSD' else 'USDT')
+
+profit['profit'] = profit['profit'].apply(lambda x: round(x, 2))
+loosing['profit'] = loosing['profit'].apply(lambda x: round(x, 2)*-1)
+
 profit['method'] = profit['method'].apply(lambda x: 'CATEGORICAL' if x == 'deep_learning_forecast' else 'RNN')
+loosing['method'] = loosing['method'].apply(lambda x: 'CATEGORICAL' if x == 'deep_learning_forecast' else 'RNN')
 
-best20 = px.treemap(profit[profit['profit']!=0], path=['category', 'method', 'symbol'],
-                    values='profit', color='profit', 
+count_df = pd.DataFrame(profit['symbol'].value_counts())
+count_df_loosing = pd.DataFrame(loosing['symbol'].value_counts())
+
+count_df = count_df.reset_index()
+count_df.columns = ['symbols', 'counts']
+
+count_df_loosing = count_df_loosing.reset_index()
+count_df_loosing.columns = ['symbols', 'counts']
+
+greater_occurence = int(count_df['counts'][0])
+n3 = (greater_occurence / 3)  # dividing between number of 3 to get top 3
+
+greater_occurence_loosing = int(count_df_loosing['counts'][0])
+n3_loosing = (greater_occurence_loosing/ 3)  # dividing between number of 3 to get top 3
+
+
+
+def count_values(x, val, df):
+    a = int(df.loc[df['symbols'] == x, 'counts'].iloc[0])
+    val = round(val)
+    if a > 2 * val:
+        return f'TOP1_>{2*val}'
+    elif a < val:
+        return f'TOP3_<{val}'
+    else:
+        return f'TOP2_>{val}_<{2*val}'
+
+
+profit['category'] = profit['symbol'].apply(lambda x: count_values(x, n3, count_df))
+loosing['category'] = loosing['symbol'].apply(lambda x: count_values(x, n3_loosing, count_df_loosing))
+
+
+
+best20 = px.treemap(profit[profit['profit'] != 0], path=[px.Constant('Profit'), 'category', 'method', 'symbol'],
+                    values='profit', color='symbol',
                     hover_data=['profit'],
                     # color_continuous_midpoint=np.average(profit['profit'], weights=profit['profit']),
-                    color_continuous_scale='RdBu'           
+                    color_continuous_scale='RdBu',
+                    title="<b>Profit By Times</b>",
                     )
 
 best20.update_traces(marker=dict(cornerradius=5))
-best20.update_coloraxes(colorbar={'orientation':'h', 'thickness':20, 'y': -0.2})
+best20.update_coloraxes(colorbar={'orientation': 'h', 'thickness': 20, 'y': -0.2})
+
+
+best20_l = px.treemap(loosing[loosing['profit'] != 0], path=[px.Constant('Loosing'), 'category', 'method', 'symbol'],
+                    values='profit', color='symbol',
+                    hover_data=['profit'],
+                    # color_continuous_midpoint=np.average(profit['profit'], weights=profit['profit']),
+                    color_continuous_scale='RdBu',
+                    title="<b>Loosing By times</b>",
+                    )
+
+best20_l.update_traces(marker=dict(cornerradius=5))
+best20_l.update_coloraxes(colorbar={'orientation': 'h', 'thickness': 20, 'y': -0.2})
 
 
 
 
 st.plotly_chart(best20, use_container_width=True)
 st.markdown("""---""")
+st.plotly_chart(best20_l, use_container_width=True)
+st.markdown("""---""")
 # st.plotly_chart(worst20, use_container_width=True)
-
 
 
 # ---- HIDE STREAMLIT STYLE ----

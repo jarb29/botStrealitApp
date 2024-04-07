@@ -68,15 +68,12 @@ data = load_df(response)
 positive = data[data['profit_'] == 0]
 negative = data[data['profit_'] == 1]
 
-# print(negative[negative['symbol']=='ALPHAUSDT'])
 
 data_load_state.text("Done! Alex.")
 
 
 
 profit = Profit(positive)
-# print(profit, 'positive')
-# print(profit, "the profit")
 st.markdown("""---""")
 
 # SALES BY HOUR [BAR CHART]
