@@ -99,6 +99,13 @@ fig = px.sunburst(df_sunburst, path=['method', 'profit_', 'symbol', 'profit'], c
                 #   color_continuous_midpoint=np.average(df['profit'], weights=df['profit'])
                  
                  )
+fig.update_layout(
+    autosize=False,
+    width=1000,
+    height=800,
+    plot_bgcolor='rgba(0,0,0,0)',
+    xaxis=(dict(showgrid=False))
+)
 fig.update_coloraxes(colorbar={'orientation':'h', 'thickness':10, 'y': -0.3})
 st.markdown("""---""")
 st.plotly_chart(fig, use_container_width=True)

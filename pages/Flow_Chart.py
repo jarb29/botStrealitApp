@@ -125,6 +125,10 @@ fig = px.parallel_categories(
             'hour_bougth': 'HB', 'profit_': 'Profit'})
 
 fig.update_coloraxes(colorbar={'orientation': 'h', 'thickness': 20, 'y': -0.2})
+fig.update_layout(
+    width=1000,
+    height=800,
+)
 st.markdown("""---""")
 
 st.plotly_chart(fig, use_container_width=True)

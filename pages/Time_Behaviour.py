@@ -1,23 +1,18 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sns
 import boto3
 import json
 import time
 import datetime
 import plotly.express as px
+
 st.title('Time Profit or Loosing Behaviour Plot')
 
-
-
-
-
-db = boto3.resource('dynamodb', region_name = 'us-east-1' )
+db = boto3.resource('dynamodb', region_name='us-east-1')
 # tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
-response  = table_name.scan()
+response = table_name.scan()
 data = response['Items']
-
 
 while 'LastEvaluatedKey' in response:
     response = table_name.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
@@ -30,7 +25,6 @@ response = data
 def load_df(response):
     data = []
     for count, each in enumerate(response):
-
         data_dict = {}
 
         symbol = each['symbol']
@@ -44,7 +38,6 @@ def load_df(response):
         data_dict['method'] = each_bougth["method"]
         data_dict['date_sold'] = date_sold
         data_dict['bougth'] = float(each_bougth["money_spent"])
-
 
         data_dict['date_bougth'] = pd.Timestamp(f'20{each_bougth["time"][0]}').strftime('%Y-%m-%d %H:%M:%S')
         data.append(data_dict)
@@ -63,6 +56,7 @@ def total(df):
     df = df.groupby(['symbol', 'date'])['profit'].agg('sum').reset_index()
     return df
 
+
 # def total(df):
 #     df['date'] = pd.to_datetime(df['date_sold'])
 #     df['dates'] = df['date'].dt.strftime('%Y-%m-%d')
@@ -71,14 +65,11 @@ def total(df):
 #     return df
 
 
-
-
-
 data_load_state = st.text('Loading data...')
 data = load_df(response)
 
-
 df = total(data)
+
 
 def sum_profit(symbol_list, df):
     final = pd.DataFrame()
@@ -87,10 +78,10 @@ def sum_profit(symbol_list, df):
         new_df = df[df['symbol'] == each].reset_index()
         for ind in range(len(new_df)):
             if ind == 0:
-                new_df.loc[ind, 'sum_profit']  = new_df.loc[ind, "profit"]
+                new_df.loc[ind, 'sum_profit'] = new_df.loc[ind, "profit"]
             else:
-                 new_df.loc[ind, 'sum_profit'] = round(new_df.loc[ind, "profit"] + new_df.loc[ind-1, 'sum_profit'], 2)
-                 
+                new_df.loc[ind, 'sum_profit'] = round(new_df.loc[ind, "profit"] + new_df.loc[ind - 1, 'sum_profit'], 2)
+
         final = pd.concat([new_df, final], ignore_index=True)
         new_df = []
     return final
@@ -99,85 +90,76 @@ def sum_profit(symbol_list, df):
 def dates_profit(symbol_list, df):
     sortedDates = sorted([datetime.datetime.strptime(item, '%Y-%m-%d') for item in df["date"].unique()])
     sortedDates = [item.strftime('%Y-%m-%d') for item in sortedDates]
-    sortedDates  =  list(pd.date_range(sortedDates[0],sortedDates[-1],freq='d').strftime("%Y-%m-%d"))
+    sortedDates = list(pd.date_range(sortedDates[0], sortedDates[-1], freq='d').strftime("%Y-%m-%d"))
     final = pd.DataFrame()
     for each in symbol_list:
         new_df = pd.DataFrame()
         new_dfII = pd.DataFrame()
         new_df = df[df['symbol'] == each].reset_index()
-        df2=new_df.loc[new_df['date'] == new_df['date'].values.tolist()[0]]
+        df2 = new_df.loc[new_df['date'] == new_df['date'].values.tolist()[0]]
         df2['date'] = sortedDates[0]
-        new_dfII = pd.concat([new_dfII, df2], ignore_index = True)
-                    
-                    
+        new_dfII = pd.concat([new_dfII, df2], ignore_index=True)
 
-        if len(new_df)> 1:
+        if len(new_df) > 1:
             for ind in range(len(new_df)):
                 if ind + 1 < len(new_df):
                     date_ini_idx = sortedDates.index(new_df.loc[ind, 'date'])
-                    date_twi_idx = sortedDates.index(new_df.loc[ind+1, 'date'])
+                    date_twi_idx = sortedDates.index(new_df.loc[ind + 1, 'date'])
                     if (date_twi_idx - date_ini_idx) >= 1:
-                        date_num  = date_twi_idx - date_ini_idx
-                
-                        for each in range(date_num):   
-                            df2=new_df.loc[new_df['date'] == new_df.loc[ind, 'date']]
-                            df2['date'] = sortedDates[int(date_ini_idx+each)]
-                            new_dfII = pd.concat([new_dfII, df2], ignore_index = True)
-                    else:
-                        df2=new_df.loc[new_df['date'] == new_df.loc[ind, 'date']]
-                        new_dfII = pd.concat([new_dfII, df2], ignore_index = True)
+                        date_num = date_twi_idx - date_ini_idx
 
-                
+                        for each in range(date_num):
+                            df2 = new_df.loc[new_df['date'] == new_df.loc[ind, 'date']]
+                            df2['date'] = sortedDates[int(date_ini_idx + each)]
+                            new_dfII = pd.concat([new_dfII, df2], ignore_index=True)
+                    else:
+                        df2 = new_df.loc[new_df['date'] == new_df.loc[ind, 'date']]
+                        new_dfII = pd.concat([new_dfII, df2], ignore_index=True)
+
+
                 else:
-                    new_df  = new_df.sort_values("date")
-                    date_ini_idx  = sortedDates.index(new_df['date'].values.tolist()[-1])
+                    new_df = new_df.sort_values("date")
+                    date_ini_idx = sortedDates.index(new_df['date'].values.tolist()[-1])
                     date_twi_idx = len(sortedDates)
-                    date_num  = date_twi_idx - date_ini_idx
+                    date_num = date_twi_idx - date_ini_idx
                     if date_num >= 1:
                         for each in range(date_num):
-                            df2=new_df.loc[new_df['date'] == new_df['date'].values.tolist()[-1]]
-                            df2['date'] = sortedDates[int(date_ini_idx+each)]
-                            new_dfII = pd.concat([new_dfII, df2], ignore_index = True)
+                            df2 = new_df.loc[new_df['date'] == new_df['date'].values.tolist()[-1]]
+                            df2['date'] = sortedDates[int(date_ini_idx + each)]
+                            new_dfII = pd.concat([new_dfII, df2], ignore_index=True)
                     final = pd.concat([new_dfII, final], ignore_index=True)
         else:
-            date_ini_idx  = sortedDates.index(new_df['date'].values.tolist()[-1])
+            date_ini_idx = sortedDates.index(new_df['date'].values.tolist()[-1])
             date_twi_idx = len(sortedDates)
             final_date = new_df['date'].values.tolist()[-1]
-            date_num  = date_twi_idx - date_ini_idx
+            date_num = date_twi_idx - date_ini_idx
             if date_num >= 1:
-                final_date_df=new_df.loc[new_df['date'] == final_date]
+                final_date_df = new_df.loc[new_df['date'] == final_date]
                 for each in range(date_num):
-                    final_date_df['date'] = sortedDates[int(date_ini_idx+each)]
-                    new_dfII = pd.concat([new_dfII, final_date_df], ignore_index = True)   
+                    final_date_df['date'] = sortedDates[int(date_ini_idx + each)]
+                    new_dfII = pd.concat([new_dfII, final_date_df], ignore_index=True)
 
         final = pd.concat([new_dfII, final], ignore_index=True)
-       
+
     return final
+
 
 symbol_list = df['symbol'].unique()
 df = sum_profit(symbol_list, df)
-    
 
-
-
-
-
-df['sum_profit'] = df['sum_profit'].apply(lambda x: round(x,2) if x > 0 else 0.01)
+df['sum_profit'] = df['sum_profit'].apply(lambda x: round(x, 2) if x > 0 else 0.01)
 df['category'] = df['symbol'].apply(lambda x: 'BUSD' if x[-4:] == 'BUSD' else 'USDT')
 df = dates_profit(symbol_list, df)
-
 
 sortedDates = sorted([datetime.datetime.strptime(item, '%Y-%m-%d') for item in df["date"].unique()])
 sortedDates = [item.strftime('%Y-%m-%d') for item in sortedDates]
 
-dates =  list(pd.date_range(sortedDates[0],sortedDates[-1],freq='d').strftime("%Y-%m-%d"))
+dates = list(pd.date_range(sortedDates[0], sortedDates[-1], freq='d').strftime("%Y-%m-%d"))
 
-
-
-df = df.drop(['level_0',  'index'], axis=1)
+df = df.drop(['level_0', 'index'], axis=1)
 
 df = df.drop_duplicates()
-df  = df.sort_values("date").reset_index()
+df = df.sort_values("date").reset_index()
 df = df.drop(['index'], axis=1).copy()
 df = df[df['date'] >= '2023-07-21']
 
@@ -193,36 +175,31 @@ with st.status("Downloading data...", expanded=True) as status:
     status.update(label="Tranforming and Ploting complete!", state="complete", expanded=False)
 st.button('Rerun')
 
-
 st.markdown("""---""")
 data_load_state.text("Done! Alex")
 
-best20 = px.scatter(df, x="symbol", y="sum_profit", 
+best20 = px.scatter(df, x="symbol", y="sum_profit",
                     animation_frame="date", animation_group="symbol",
-                    size="sum_profit", color="symbol", 
+                    size="sum_profit", color="symbol",
                     hover_name="symbol", facet_col="category",
-                    size_max=15, range_y=[0,max_profit],
+                    size_max=15, range_y=[0, max_profit],
                     title="<b>Symbol Behaviour By Time</b>",
                     template="plotly_dark")
 
 best20.update_layout(
     xaxis=dict(tickmode="linear"),
     plot_bgcolor="rgba(154, 167, 199, 0.09)",
-    yaxis=(dict(showgrid=True))
+    yaxis=(dict(showgrid=True)),
+    width=1000,
+    height=800,
 )
 
 best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 best20.update_yaxes(showticklabels=True)
 
-
-
-
-
-
 st.plotly_chart(best20, use_container_width=True)
 st.markdown("""---""")
 # st.plotly_chart(worst20, use_container_width=True)
-
 
 
 # ---- HIDE STREAMLIT STYLE ----

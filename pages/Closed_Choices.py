@@ -180,6 +180,8 @@ fig_product_sales = px.bar(
 )
 
 fig_product_sales.update_layout(
+    width=1000,
+    height=800,
     plot_bgcolor="rgba(0,0,0,0)",
     # xaxis=(dict(showgrid=True)),
     # yaxis=(dict(showgrid=True))
@@ -207,6 +209,8 @@ fig_hourly_sales = px.bar(
     template="plotly_dark",
 )
 fig_hourly_sales.update_layout(
+    width=1000,
+    height=800,
     xaxis=dict(tickmode="linear"),
     plot_bgcolor="rgba(0,0,0,0)",
     yaxis=(dict(showgrid=True))
@@ -223,6 +227,8 @@ fig_hourly_sales_quantity = px.bar(
     template="plotly_dark",
 )
 fig_hourly_sales_quantity.update_layout(
+    width=1000,
+    height=800,
     xaxis=dict(tickmode="linear"),
     # plot_bgcolor="rgba(0,0,0,0)",
     yaxis=(dict(showgrid=True))
@@ -240,6 +246,8 @@ symbol = px.bar(
     template="plotly_dark",
 )
 symbol.update_layout(
+    width=1000,
+    height=800,
     xaxis=dict(tickmode="linear"),
     # plot_bgcolor="rgba(0,0,0,0)",
     yaxis=(dict(showgrid=True))

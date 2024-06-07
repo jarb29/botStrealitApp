@@ -125,7 +125,9 @@ best20 = px.scatter(profit,
 best20.update_layout(
     plot_bgcolor="rgba(0,0,0,0)",
     xaxis=(dict(showgrid=True)),
-    yaxis=(dict(showgrid=True))
+    yaxis=(dict(showgrid=True)),
+    width=1000,
+    height=800,
 )
 
 

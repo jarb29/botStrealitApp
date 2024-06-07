@@ -98,7 +98,8 @@ loosing['category'] = loosing['symbol'].apply(lambda x: count_values(x, n3_loosi
 
 
 best20 = px.treemap(profit[profit['profit'] != 0], path=[px.Constant('Profit'), 'category', 'method', 'symbol'],
-                    values='profit', color='symbol',
+                    values='profit',
+                    color='symbol',
                     hover_data=['profit'],
                     # color_continuous_midpoint=np.average(profit['profit'], weights=profit['profit']),
                     color_continuous_scale='RdBu',
@@ -118,6 +119,11 @@ best20_l = px.treemap(loosing[loosing['profit'] != 0], path=[px.Constant('Loosin
                     )
 
 best20_l.update_traces(marker=dict(cornerradius=5))
+best20_l.update_layout(
+
+    width=1000,
+    height=800,
+)
 best20_l.update_coloraxes(colorbar={'orientation': 'h', 'thickness': 20, 'y': -0.2})
 
 

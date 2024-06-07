@@ -11,13 +11,11 @@ import matplotlib.pyplot as plt
 st.title("Profit by Symbol")
 st.markdown("##")
 
-
-db = boto3.resource('dynamodb', region_name = 'us-east-1' )
+db = boto3.resource('dynamodb', region_name='us-east-1')
 # tables = list(db.tables.all())
 table_name = db.Table(name='app_bi_sell')
-response  = table_name.scan()
+response = table_name.scan()
 data = response['Items']
-
 
 while 'LastEvaluatedKey' in response:
     response = table_name.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
@@ -25,11 +23,11 @@ while 'LastEvaluatedKey' in response:
 
 response = data
 
+
 @st.cache_data
 def load_df(response):
     data = []
     for count, each in enumerate(response):
-
         data_dict = {}
 
         symbol = each['symbol']
@@ -43,7 +41,6 @@ def load_df(response):
         data_dict['method'] = each_bougth["method"]
         data_dict['date_sold'] = date_sold
         data_dict['bougth'] = float(each_bougth["money_spent"])
-
 
         data_dict['date_bougth'] = pd.Timestamp(f'20{each_bougth["time"][0]}').strftime('%Y-%m-%d %H:%M:%S')
         data.append(data_dict)
@@ -67,7 +64,8 @@ def Profit(df):
     date_quant = df.groupby(['symbol'])['profit'].agg('sum').reset_index()
     # date_quant = date_quant.sort_values("profit", ascending=False).reset_index(drop=True)
     return date_quant
-    
+
+
 def total(df):
     df['date'] = pd.to_datetime(df['date_sold'])
     df['date'] = df['date'].dt.strftime('%Y-%m-%d')
@@ -93,31 +91,25 @@ with left_column:
     # st.text('___'*10)
     st.subheader("Total Earning:")
     st.subheader(f"Total: {earning}")
-    
-    
+
 with middle_column:
     # st.text('___'*10)
     st.subheader("Total Loosing:")
     st.subheader(f"{loosing}")
 
-    
-    
-    
 st.markdown("""---""")
-
 
 # SALES BY HOUR [BAR CHART]
 
 
-best20 = px.bar(df, x="profit_", y="profit", color= 'profit_',
+best20 = px.bar(df, x="profit_", y="profit", color='profit_',
                 facet_col="symbol", facet_col_wrap=3,
-                facet_row_spacing=0.01, 
+                facet_row_spacing=0.01,
                 facet_col_spacing=0.02,
-                height=120*round(len(df['symbol'].unique())/3), 
+                height=120 * round(len(df['symbol'].unique()) / 3),
                 width=800,
                 color_continuous_scale=px.colors.sequential.Cividis_r,
                 )
-
 
 best20.update_layout(
     xaxis=dict(tickmode="linear"),
@@ -128,15 +120,9 @@ best20.update_layout(
 best20.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
 best20.update_yaxes(showticklabels=True)
 
-
-
-
-
-
 st.plotly_chart(best20, use_container_width=True)
 st.markdown("""---""")
 # st.plotly_chart(worst20, use_container_width=True)
-
 
 
 # ---- HIDE STREAMLIT STYLE ----

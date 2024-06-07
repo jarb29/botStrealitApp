@@ -11,13 +11,11 @@ import matplotlib.pyplot as plt
 st.title("Best and Worst Criptos")
 st.markdown("##")
 
-
-db = boto3.resource('dynamodb', region_name = 'us-east-1' )
+db = boto3.resource('dynamodb', region_name='us-east-1')
 
 table_name = db.Table(name='app_bi_sell')
-response  = table_name.scan()
+response = table_name.scan()
 data = response['Items']
-
 
 while 'LastEvaluatedKey' in response:
     response = table_name.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
@@ -25,11 +23,11 @@ while 'LastEvaluatedKey' in response:
 
 response = data
 
+
 @st.cache_data
 def load_df(response):
     data = []
     for count, each in enumerate(response):
-
         data_dict = {}
 
         symbol = each['symbol']
@@ -44,7 +42,6 @@ def load_df(response):
         data_dict['date_sold'] = date_sold
         data_dict['bougth'] = float(each_bougth["money_spent"])
 
-
         data_dict['date_bougth'] = pd.Timestamp(f'20{each_bougth["time"][0]}').strftime('%Y-%m-%d %H:%M:%S')
         data.append(data_dict)
 
@@ -54,13 +51,10 @@ def load_df(response):
     return df
 
 
-
 def Profit(df):
     date_quant = df.groupby(['symbol'])['profit'].agg('count').reset_index()
     date_quant = date_quant.sort_values("profit", ascending=False).reset_index(drop=True)
     return date_quant
-    
-
 
 
 data_load_state = st.text('Loading data...')
@@ -68,10 +62,7 @@ data = load_df(response)
 positive = data[data['profit_'] == 0]
 negative = data[data['profit_'] == 1]
 
-
 data_load_state.text("Done! Alex.")
-
-
 
 profit = Profit(positive)
 st.markdown("""---""")
@@ -88,7 +79,7 @@ symbol = px.bar(
     profit[0:50],
     x='symbol',
     y="profit",
-    color = "profit",
+    color="profit",
     # orientation="h",
     title="<b>Times by Symbol</b>",
     # color_discrete_sequence=["#0083B8"] * len(profit),
@@ -104,7 +95,7 @@ negative = px.bar(
     negative_50,
     x='symbol',
     y="profit",
-    color = "profit",
+    color="profit",
     # orientation="h",
     title="<b>Times Negatives Symbol</b>",
     # color_discrete_sequence=["#0083B8"] * len(profit),
@@ -113,12 +104,10 @@ negative = px.bar(
 negative.update_layout(
     xaxis=dict(tickmode="linear"),
     # plot_bgcolor="rgba(0,0,0,0)",
-    yaxis=(dict(showgrid=True))
+    yaxis=(dict(showgrid=True)),
+    width=1000,
+    height=800,
 )
-
-
-
-
 
 st.plotly_chart(symbol, use_container_width=True)
 st.markdown("""---""")

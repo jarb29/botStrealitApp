@@ -137,8 +137,8 @@ with left_column:
     st.text('___'*10)
     st.subheader("Total Symbols Trade:")
     st.subheader(f"Total: {total_symbol}")
-    
-    
+
+
 
 
 
@@ -180,6 +180,8 @@ fig_product_sales = px.bar(
     template="plotly_dark",
 )
 fig_product_sales.update_layout(
+    width=1000,
+    height=800,
     plot_bgcolor="rgba(0,0,0,0)",
     xaxis=(dict(showgrid=False))
 )
@@ -196,6 +198,9 @@ fig_hourly_sales = px.bar(
     template="plotly_dark",
 )
 fig_hourly_sales.update_layout(
+    width=1000,
+    height=800,
+
     xaxis=dict(tickmode="linear"),
     plot_bgcolor="rgba(0,0,0,0)",
     yaxis=(dict(showgrid=False)),

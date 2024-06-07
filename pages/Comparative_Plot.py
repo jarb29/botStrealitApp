@@ -88,24 +88,6 @@ st.pyplot(g.fig)
 st.markdown("""---""")
 
 
-# fig_product_sales = px.scatter_matrix(
-#     df,
-#     dimensions= ['time_hold', 'profit', 'bougth', 'sold'],
-#     color="profit_",
-#     color_continuous_scale=px.colors.sequential.Cividis_r,
-#     title="<b>Comparative</b>",
-#     template="plotly_dark",
-# )
-
-# fig_product_sales.update_layout(
-#     xaxis=dict(tickmode="linear"),
-#     plot_bgcolor="rgba(154, 167, 199, 0.09)",
-#     yaxis=(dict(showgrid=True))
-# )
-
-# st.plotly_chart(fig_product_sales, use_container_width=True)
-
-
 
 # ---- HIDE STREAMLIT STYLE ----
 hide_st_style = """
